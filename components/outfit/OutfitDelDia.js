@@ -11,6 +11,7 @@ import ClimaResumen from "@/components/clima/ClimaResumen";
 import OutfitSugerido from "@/components/outfit/OutfitSugerido";
 import RecomendacionGenerica from "@/components/outfit/RecomendacionGenerica";
 import PaletaDelDia from "@/components/paletas/PaletaDelDia";
+import UsarOutfit from "@/components/outfit/UsarOutfit";
 
 export default async function OutfitDelDia({ user, ubicacion, desde, hasta }) {
   let pronostico;
@@ -37,6 +38,8 @@ export default async function OutfitDelDia({ user, ubicacion, desde, hasta }) {
   const perfil = { sensibilidad: user.sensibilidad, ajusteTermico: user.ajusteTermico };
   // Con la paleta, el motor prioriza las prendas que combinan con el día.
   const recomendacion = recomendar({ clima, perfil, prendas, paleta });
+  // Las prendas que eligió el motor (las categorías sin prenda no cuentan).
+  const prendaIds = recomendacion.outfit.filter((x) => x.prenda).map((x) => x.prenda.id);
 
   return (
     // La interfaz toma colores de la paleta del día con variables CSS. Las
@@ -55,7 +58,16 @@ export default async function OutfitDelDia({ user, ubicacion, desde, hasta }) {
           </p>
         </>
       ) : (
-        <OutfitSugerido recomendacion={recomendacion} />
+        <OutfitSugerido recomendacion={recomendacion}>
+          {prendaIds.length > 0 && (
+            <UsarOutfit
+              prendaIds={prendaIds}
+              ubicacion={ubicacion}
+              desde={desde}
+              hasta={hasta}
+            />
+          )}
+        </OutfitSugerido>
       )}
       <PaletaDelDia paleta={paleta} />
       <ClimaResumen

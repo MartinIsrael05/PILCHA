@@ -2,7 +2,8 @@
 // 1. Las paletas de colores (una por clima).
 // 2. El usuario de prueba con un placard cargado.
 // Se puede correr las veces que haga falta: las paletas se pisan por id y,
-// si el usuario ya existe, se reutiliza y se reemplazan sus prendas.
+// si el usuario ya existe, se reutiliza y se reemplazan sus prendas (y se
+// borra su historial).
 //
 // Uso:  npm run seed            (paletas + usuario de prueba)
 //       npm run seed:paletas    (solo paletas, no toca el placard)
@@ -156,11 +157,16 @@ async function main() {
     createdAt: FieldValue.serverTimestamp(),
   });
 
-  // 3. Prendas: borramos las anteriores y cargamos de nuevo.
+  // 3. Prendas: borramos las anteriores y cargamos de nuevo. También borramos
+  // el historial, porque sus outfits apuntan a los ids de las prendas viejas.
   const prendasRef = userRef.collection("prendas");
-  const existentes = await prendasRef.get();
+  const [existentes, outfits] = await Promise.all([
+    prendasRef.get(),
+    userRef.collection("outfits").get(),
+  ]);
   const batch = db.batch();
   existentes.docs.forEach((doc) => batch.delete(doc.ref));
+  outfits.docs.forEach((doc) => batch.delete(doc.ref));
 
   PRENDAS.forEach(([nombre, categoria, hex, colorNombre, abrigo, impermeable]) => {
     batch.set(prendasRef.doc(), {

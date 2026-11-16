@@ -1,9 +1,9 @@
 "use client"; // Usa la geolocalización del navegador, localStorage y estado del buscador.
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { buscarCiudad } from "@/lib/clima";
 import { redondearCoordenada } from "@/lib/ubicacion";
+import useBuscarCiudad from "@/hooks/useBuscarCiudad";
 import Button from "@/components/ui/Button";
 
 // Recordamos la última ubicación elegida en este navegador para no tener
@@ -15,14 +15,10 @@ export default function SelectorUbicacion({ ubicacionActual }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [texto, setTexto] = useState("");
-  const [resultados, setResultados] = useState([]);
-  const [buscando, setBuscando] = useState(false);
   const [localizando, setLocalizando] = useState(false);
-  const [mensaje, setMensaje] = useState(null);
-
-  const temporizador = useRef(null);
-  const ultimaBusqueda = useRef(0);
+  // Buscador con debounce (hooks/useBuscarCiudad.js).
+  const { texto, resultados, buscando, mensaje, setMensaje, cambiarTexto, limpiar } =
+    useBuscarCiudad();
 
   // Cambia la URL con la nueva ubicación. La página (Server Component) lee
   // la URL y pide el clima en el servidor.
@@ -33,9 +29,7 @@ export default function SelectorUbicacion({ ubicacionActual }) {
     params.set("ciudad", ubicacion.nombre);
 
     guardarUbicacion(ubicacion);
-    setResultados([]);
-    setTexto("");
-    setMensaje(null);
+    limpiar();
 
     const url = `${pathname}?${params}`;
     if (reemplazar) router.replace(url, { scroll: false });
@@ -85,37 +79,6 @@ export default function SelectorUbicacion({ ubicacionActual }) {
     );
   }
 
-  // Buscamos mientras escribe, pero esperamos 300 ms desde la última tecla
-  // para no hacer un pedido por cada letra (debounce).
-  function handleCambioTexto(event) {
-    const valor = event.target.value;
-    setTexto(valor);
-    clearTimeout(temporizador.current);
-
-    if (valor.trim().length < 2) {
-      setResultados([]);
-      setBuscando(false);
-      return;
-    }
-
-    setBuscando(true);
-    temporizador.current = setTimeout(async () => {
-      // Si llega tarde la respuesta de una búsqueda vieja, la ignoramos.
-      const numero = ++ultimaBusqueda.current;
-      try {
-        const encontradas = await buscarCiudad(valor);
-        if (numero !== ultimaBusqueda.current) return;
-        setResultados(encontradas);
-        setMensaje(encontradas.length ? null : "No encontramos ninguna ciudad con ese nombre.");
-      } catch {
-        if (numero !== ultimaBusqueda.current) return;
-        setMensaje("No pudimos buscar la ciudad. Probá de nuevo.");
-      } finally {
-        if (numero === ultimaBusqueda.current) setBuscando(false);
-      }
-    }, 300);
-  }
-
   return (
     <div className="flex flex-col gap-4 rounded-2xl border border-border p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -148,7 +111,7 @@ export default function SelectorUbicacion({ ubicacionActual }) {
           id="buscar-ciudad"
           type="search"
           value={texto}
-          onChange={handleCambioTexto}
+          onChange={(e) => cambiarTexto(e.target.value)}
           placeholder="O buscá una ciudad, por ejemplo Rosario"
           autoComplete="off"
           className="w-full rounded-lg border border-border bg-background px-3 py-2.5 outline-none focus:border-foreground"

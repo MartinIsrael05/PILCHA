@@ -75,7 +75,7 @@ La consigna completa está en el README original de la cátedra (https://github.
 
 - "Usé este outfit": guarda el outfit con un snapshot del clima.
 - Después el usuario lo califica: `frio`, `bien` o `calor`.
-- Cada calificación ajusta `ajusteTermico` del usuario: `frio` suma 0.5, `calor` resta 0.5, `bien` no cambia. Rango entre -5 y +5.
+- Cada calificación ajusta `ajusteTermico` del usuario: `frio` resta 0.5, `calor` suma 0.5, `bien` no cambia. Rango entre -5 y +5. (Va en el mismo sentido que el offset de `friolento`: si tuviste frío, el día "se siente" más frío para vos y la próxima te abriga más. Si se cambia la calificación de un outfit, primero se deshace el efecto de la anterior.)
 
 ### 5. Modo viaje
 
