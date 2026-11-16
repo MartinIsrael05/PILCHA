@@ -11,6 +11,7 @@
     "start": "next start",
     "lint": "eslint",
     "seed": "node --env-file=.env.local scripts/seed.js",
+    "seed:paletas": "node --env-file=.env.local scripts/seed.js --solo-paletas",
     "test": "node --test --disable-warning=MODULE_TYPELESS_PACKAGE_JSON \"tests/*.test.js\""
   },
   "dependencies": {
