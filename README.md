@@ -39,6 +39,13 @@ TP Final de Programación Multimedial III (UMAI). Consigna: https://github.com/l
 - **Filtros en la URL.** El listado es un Server Component y los filtros son un `<form method="GET">` común: no hace falta estado de cliente y la búsqueda se puede compartir.
 - **Foto opcional** a Vercel Blob. Si se reemplaza o se elimina la prenda, se borra la foto vieja.
 
+## Paletas
+
+- **Viven en Firestore** (`paletas`), una por clima. Se cargan con `npm run seed:paletas`, que no toca el placard del usuario de prueba.
+- **La paleta del día** sale de `condicionPaleta(clima)` en `lib/clima.js`. El motor la usa para priorizar prendas que combinan con ella.
+- **La interfaz cambia con el clima.** `variablesDeTema()` (`lib/paletas.js`) define `--tema-acento` con el color más vivo de la paleta y `--tema-acento-texto` con negro o blanco según el contraste WCAG. La tarjeta del outfit usa esas variables y, si no hay paleta, vuelve a los colores de siempre.
+- **`/paletas` y `/paletas/[clima]`** se generan en el build y se renuevan cada hora. Cada paleta tiene título, descripción e imagen de Open Graph propios (`opengraph-image.js`, hecha con los colores reales).
+
 ## Autenticación
 
 1. El usuario se loguea con Firebase Auth en el navegador y obtiene un ID token.
@@ -71,7 +78,8 @@ La app queda en http://localhost:3000.
 | `npm run build` | Build de producción |
 | `npm run start` | Sirve el build |
 | `npm run lint` | ESLint |
-| `npm run seed` | Crea el usuario de prueba con un placard cargado (necesita `.env.local`) |
+| `npm run seed` | Carga las paletas y crea el usuario de prueba con un placard (necesita `.env.local`) |
+| `npm run seed:paletas` | Carga solo las paletas, sin tocar el placard de prueba |
 | `npm test` | Pruebas del motor de recomendación y de colores (`node:test`, sin dependencias) |
 
 ## Variables de entorno
