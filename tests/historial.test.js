@@ -5,6 +5,7 @@ import {
   nuevoAjuste,
   validarCalificacion,
   limpiarPrendaIds,
+  formatearFecha,
 } from "../lib/historial.js";
 import { calcularTempEfectiva, recomendar } from "../lib/recomendar.js";
 
@@ -57,4 +58,10 @@ test("limpiarPrendaIds saca repetidos y rechaza rutas", () => {
   assert.equal(limpiarPrendaIds([]), null);
   assert.equal(limpiarPrendaIds(["../otro-usuario"]), null);
   assert.equal(limpiarPrendaIds(Array.from({ length: 9 }, (_, i) => `p${i}`)), null);
+});
+
+test("formatearFecha usa la hora de Argentina", () => {
+  // 17/11 a las 01:00 UTC es todavía 16/11 a las 22:00 en Argentina.
+  const ms = Date.UTC(2026, 10, 17, 1, 0);
+  assert.equal(formatearFecha(ms), "lunes, 16 de noviembre");
 });

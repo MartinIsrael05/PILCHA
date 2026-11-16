@@ -6,7 +6,8 @@ import Image from "next/image";
 import Alertas from "@/components/clima/Alertas";
 import { CATEGORIAS } from "@/lib/prendas";
 
-export default function OutfitSugerido({ recomendacion }) {
+// children: acciones que van al pie de la tarjeta (por ejemplo "Usé este outfit").
+export default function OutfitSugerido({ recomendacion, children }) {
   const { tempEfectiva, nivel, outfit, alertas } = recomendacion;
   const faltan = outfit.filter((item) => !item.prenda && !item.opcional);
 
@@ -66,6 +67,8 @@ export default function OutfitSugerido({ recomendacion }) {
           .
         </p>
       )}
+
+      {children}
     </article>
   );
 }

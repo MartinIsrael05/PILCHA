@@ -46,6 +46,9 @@ export default function UserMenu() {
       <Link href="/placard" className="font-medium hover:underline">
         Mi placard
       </Link>
+      <Link href="/historial" className="font-medium hover:underline">
+        Historial
+      </Link>
       <Link
         href="/perfil"
         className="flex items-center gap-2 font-medium hover:underline"
