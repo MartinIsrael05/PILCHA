@@ -15,6 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata = {
+  // Base para armar las URLs absolutas de Open Graph (las imágenes al compartir).
+  metadataBase: new URL("https://pilcha-ropa.vercel.app"),
   title: {
     default: "PILCHA",
     template: "%s | PILCHA",
@@ -33,10 +35,15 @@ export default function RootLayout({ children }) {
         {/* AuthProvider es cliente, pero sus children siguen siendo Server Components */}
         <AuthProvider>
           <header className="border-b border-border">
-            <nav className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
-              <Link href="/" className="text-xl font-black tracking-widest">
-                PILCHA
-              </Link>
+            <nav className="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-x-4 gap-y-3 px-4 py-4">
+              <div className="flex items-center gap-6">
+                <Link href="/" className="text-xl font-black tracking-widest">
+                  PILCHA
+                </Link>
+                <Link href="/paletas" className="text-sm font-medium hover:underline">
+                  Paletas
+                </Link>
+              </div>
               <UserMenu />
             </nav>
           </header>

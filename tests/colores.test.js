@@ -7,6 +7,9 @@ import {
   distanciaTono,
   puntajeColores,
   puntajeContraPaleta,
+  contraste,
+  colorDeTexto,
+  colorAcento,
   PUNTAJE,
 } from "../lib/colores.js";
 
@@ -58,4 +61,19 @@ test("puntajeContraPaleta toma el mejor color de la paleta", () => {
   const paleta = ["#a3e635", "#ea580c"]; // verde lima y naranja
   assert.equal(puntajeContraPaleta("#1d4ed8", paleta), PUNTAJE.alto); // azul vs naranja
   assert.equal(puntajeContraPaleta("#1d4ed8", []), PUNTAJE.neutro); // sin paleta
+});
+
+test("contraste y color de texto legible", () => {
+  assert.equal(Math.round(contraste("#000000", "#ffffff")), 21);
+  assert.equal(colorDeTexto("#ffffff"), "#000000");
+  assert.equal(colorDeTexto("#14213d"), "#ffffff"); // azul noche
+  assert.equal(colorDeTexto("#e9c46a"), "#000000"); // amarillo
+});
+
+test("colorAcento elige el color más vivo de la paleta", () => {
+  // En "Cielo gris" todo es neutro salvo el azul.
+  assert.equal(colorAcento(["#343a40", "#6c757d", "#e9ecef", "#4f7cac"]), "#4f7cac");
+  // Solo neutros: el más oscuro.
+  assert.equal(colorAcento(["#ffffff", "#6b7280", "#111111"]), "#111111");
+  assert.equal(colorAcento([]), null);
 });

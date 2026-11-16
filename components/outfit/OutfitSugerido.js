@@ -10,8 +10,10 @@ export default function OutfitSugerido({ recomendacion }) {
   const { tempEfectiva, nivel, outfit, alertas } = recomendacion;
   const faltan = outfit.filter((item) => !item.prenda && !item.opcional);
 
+  // Fondo con el acento de la paleta del día (variables CSS que define
+  // OutfitDelDia). Si no hay paleta, vuelve a los colores de siempre.
   return (
-    <article className="flex flex-col gap-5 rounded-2xl bg-foreground p-5 text-background sm:p-6">
+    <article className="flex flex-col gap-5 rounded-2xl bg-[var(--tema-acento,var(--foreground))] p-5 text-[var(--tema-acento-texto,var(--background))] sm:p-6">
       <header className="flex flex-col gap-1">
         <p className="text-sm opacity-70">
           Para vos se siente como {Math.round(tempEfectiva)}° · {nivel.nombre}

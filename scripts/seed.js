@@ -1,10 +1,12 @@
-// Crea el usuario de prueba con un placard cargado. Se puede correr las veces
-// que haga falta: si el usuario ya existe lo reutiliza y reemplaza sus prendas.
+// Carga los datos iniciales en Firestore:
+// 1. Las paletas de colores (una por clima).
+// 2. El usuario de prueba con un placard cargado.
+// Se puede correr las veces que haga falta: las paletas se pisan por id y,
+// si el usuario ya existe, se reutiliza y se reemplazan sus prendas.
 //
-// Uso:  npm run seed
+// Uso:  npm run seed            (paletas + usuario de prueba)
+//       npm run seed:paletas    (solo paletas, no toca el placard)
 // (lee las credenciales de .env.local con la opción --env-file de Node)
-//
-// Más adelante este script también carga las paletas (fase 7).
 const { initializeApp, cert } = require("firebase-admin/app");
 const { getAuth } = require("firebase-admin/auth");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
@@ -14,6 +16,59 @@ const USUARIO = {
   password: "pilcha-prueba-2026",
   nombre: "Usuario de prueba",
 };
+
+// Paletas iniciales. El id del documento es el clima, así volver a correr el
+// seed actualiza la misma paleta en lugar de duplicarla.
+const PALETAS = [
+  {
+    clima: "soleado-calido",
+    nombre: "Mediodía de verano",
+    armonia: "complementaria",
+    colores: ["#e07a5f", "#f2a65a", "#3d9a9b", "#81c3c4", "#f4f1de"],
+    descripcion:
+      "Terracotas y naranjas contra turquesas: el contraste de un día de sol fuerte. Ideal para telas livianas.",
+  },
+  {
+    clima: "soleado-templado",
+    nombre: "Primavera templada",
+    armonia: "analoga",
+    colores: ["#31572c", "#4f772d", "#90a955", "#c5d86d", "#f4f9e9"],
+    descripcion:
+      "Verdes que van del oscuro al pastel, como un parque a la tarde. Combinan entre sí sin pensarlo.",
+  },
+  {
+    clima: "nublado",
+    nombre: "Cielo gris",
+    armonia: "neutros-acento",
+    colores: ["#343a40", "#6c757d", "#adb5bd", "#e9ecef", "#4f7cac"],
+    descripcion:
+      "Grises de todos los tonos con un azul de acento. Una base tranquila para un día sin sol.",
+  },
+  {
+    clima: "lluvia",
+    nombre: "Piloto amarillo",
+    armonia: "complementaria",
+    colores: ["#1d3557", "#457b9d", "#a8dadc", "#f1faee", "#e9c46a"],
+    descripcion:
+      "Azules de tormenta con un amarillo de piloto: el color que se ve de lejos cuando llueve.",
+  },
+  {
+    clima: "frio",
+    nombre: "Invierno abrigado",
+    armonia: "neutros-acento",
+    colores: ["#3d2b1f", "#8b5e3c", "#d6c6b0", "#f5f0e8", "#9b2335"],
+    descripcion:
+      "Marrones, camel y crudo de lana, con un bordó que levanta el conjunto.",
+  },
+  {
+    clima: "noche",
+    nombre: "Salida de noche",
+    armonia: "analoga",
+    colores: ["#14213d", "#2b2d42", "#5c4d7d", "#8d99ae", "#edf2f4"],
+    descripcion:
+      "Azules profundos y violetas apagados. Elegantes y fáciles de combinar con negro.",
+  },
+];
 
 // [nombre, categoria, hex, color, abrigo, impermeable]
 const PRENDAS = [
@@ -69,6 +124,9 @@ async function main() {
   const auth = getAuth(app);
   const db = getFirestore(app);
 
+  await cargarPaletas(db);
+  if (process.argv.includes("--solo-paletas")) return;
+
   // 1. Usuario en Firebase Auth (se reutiliza si ya existe).
   let usuario;
   try {
@@ -122,6 +180,15 @@ async function main() {
 
   console.log(`${PRENDAS.length} prendas cargadas.`);
   console.log(`Ingresá con ${USUARIO.email} / ${USUARIO.password}`);
+}
+
+async function cargarPaletas(db) {
+  const batch = db.batch();
+  PALETAS.forEach((paleta) => {
+    batch.set(db.collection("paletas").doc(paleta.clima), paleta);
+  });
+  await batch.commit();
+  console.log(`${PALETAS.length} paletas cargadas.`);
 }
 
 main().catch((error) => {
