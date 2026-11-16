@@ -1,12 +1,16 @@
-// Pide el pronóstico y el placard en el servidor, corre el motor y muestra el
-// outfit. Va envuelto en <Suspense> en /hoy, así la página no espera a Open-Meteo.
+// Pide el pronóstico, el placard y la paleta del día en el servidor, corre el
+// motor y muestra el outfit. Va envuelto en <Suspense> en /hoy, así la página
+// no espera a Open-Meteo.
 import Link from "next/link";
-import { getPronostico, resumirVentana } from "@/lib/clima";
+import { getPronostico, resumirVentana, condicionPaleta } from "@/lib/clima";
 import { recomendar } from "@/lib/recomendar";
 import { listarPrendas } from "@/lib/data/prendas";
+import { getPaletaDelDia } from "@/lib/data/paletas";
+import { variablesDeTema } from "@/lib/paletas";
 import ClimaResumen from "@/components/clima/ClimaResumen";
 import OutfitSugerido from "@/components/outfit/OutfitSugerido";
 import RecomendacionGenerica from "@/components/outfit/RecomendacionGenerica";
+import PaletaDelDia from "@/components/paletas/PaletaDelDia";
 
 export default async function OutfitDelDia({ user, ubicacion, desde, hasta }) {
   let pronostico;
@@ -24,13 +28,21 @@ export default async function OutfitDelDia({ user, ubicacion, desde, hasta }) {
   const clima = resumirVentana(pronostico, desde, hasta);
   if (!clima) return <Aviso>No hay datos del clima para ese horario.</Aviso>;
 
-  const prendas = await listarPrendas(user.uid);
+  // El placard y la paleta no dependen uno del otro: los pedimos en paralelo.
+  const [prendas, paleta] = await Promise.all([
+    listarPrendas(user.uid),
+    getPaletaDelDia(condicionPaleta(clima)),
+  ]);
+
   const perfil = { sensibilidad: user.sensibilidad, ajusteTermico: user.ajusteTermico };
-  // La paleta del día se suma en la fase de paletas.
-  const recomendacion = recomendar({ clima, perfil, prendas });
+  // Con la paleta, el motor prioriza las prendas que combinan con el día.
+  const recomendacion = recomendar({ clima, perfil, prendas, paleta });
 
   return (
-    <div className="flex flex-col gap-4">
+    // La interfaz toma colores de la paleta del día con variables CSS. Las
+    // definimos acá (y no en el layout) porque la paleta depende del clima,
+    // y el clima depende de la ubicación que viene en la URL.
+    <div className="flex flex-col gap-4" style={variablesDeTema(paleta)}>
       {prendas.length === 0 ? (
         <>
           <RecomendacionGenerica recomendacion={recomendacion} logueado conInvitacion={false} />
@@ -45,6 +57,7 @@ export default async function OutfitDelDia({ user, ubicacion, desde, hasta }) {
       ) : (
         <OutfitSugerido recomendacion={recomendacion} />
       )}
+      <PaletaDelDia paleta={paleta} />
       <ClimaResumen
         clima={clima}
         actual={pronostico.current}

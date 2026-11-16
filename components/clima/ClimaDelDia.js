@@ -1,9 +1,12 @@
 // Pide el pronóstico en el servidor, arma la recomendación y muestra las dos.
 // Va envuelto en <Suspense>, así el resto de la página no espera a Open-Meteo.
-import { getPronostico, resumirVentana } from "@/lib/clima";
+import { getPronostico, resumirVentana, condicionPaleta } from "@/lib/clima";
 import { recomendar } from "@/lib/recomendar";
+import { getPaletaDelDia } from "@/lib/data/paletas";
+import { variablesDeTema } from "@/lib/paletas";
 import ClimaResumen from "@/components/clima/ClimaResumen";
 import RecomendacionGenerica from "@/components/outfit/RecomendacionGenerica";
+import PaletaDelDia from "@/components/paletas/PaletaDelDia";
 
 export default async function ClimaDelDia({ ubicacion, desde, hasta, perfil, logueado }) {
   let pronostico;
@@ -23,12 +26,15 @@ export default async function ClimaDelDia({ ubicacion, desde, hasta, perfil, log
     return <Aviso>No hay datos del clima para ese horario.</Aviso>;
   }
 
-  // Sin placard todavía: el motor devuelve la recomendación genérica.
+  // Sin placard: el motor devuelve la recomendación genérica.
   const recomendacion = recomendar({ clima, perfil });
+  const paleta = await getPaletaDelDia(condicionPaleta(clima));
 
   return (
-    <div className="flex flex-col gap-4">
+    // Igual que en /hoy, la interfaz toma colores de la paleta del día.
+    <div className="flex flex-col gap-4" style={variablesDeTema(paleta)}>
       <RecomendacionGenerica recomendacion={recomendacion} logueado={logueado} />
+      <PaletaDelDia paleta={paleta} />
       <ClimaResumen
         clima={clima}
         actual={pronostico.current}
