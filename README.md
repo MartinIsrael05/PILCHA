@@ -46,6 +46,18 @@ TP Final de Programación Multimedial III (UMAI). Consigna: https://github.com/l
 - **La interfaz cambia con el clima.** `variablesDeTema()` (`lib/paletas.js`) define `--tema-acento` con el color más vivo de la paleta y `--tema-acento-texto` con negro o blanco según el contraste WCAG. La tarjeta del outfit usa esas variables y, si no hay paleta, vuelve a los colores de siempre.
 - **`/paletas` y `/paletas/[clima]`** se generan en el build y se renuevan cada hora. Cada paleta tiene título, descripción e imagen de Open Graph propios (`opengraph-image.js`, hecha con los colores reales).
 
+## Perfil
+
+- `/perfil` guarda la ciudad por defecto, el horario de salida y vuelta y la sensibilidad (friolento, normal o caluroso). `/hoy` y la portada los usan cuando no hay otra ubicación u horario en la URL.
+- La validación (`lib/perfil.js`) es la misma en el formulario y en la Server Action (`lib/actions/perfil.js`).
+- Muestra lo que PILCHA aprendió de las calificaciones y permite reiniciarlo.
+
+## Historial y aprendizaje
+
+- **"Usé este outfit"** (en `/hoy`) guarda el outfit con un snapshot del clima y suma un uso a cada prenda. El clima **no viene del navegador**: la Server Action recibe la ubicación y el horario y lo vuelve a calcular con el pronóstico (que está en caché). También verifica que las prendas sean del usuario.
+- **Calificación** en `/historial/[id]`: frío, bien o calor. Ajusta `ajusteTermico`: frío resta 0.5 y calor suma 0.5, entre -5 y +5. Va en el mismo sentido que el offset de "friolento": si tuviste frío, el día "se siente" más frío para vos y la próxima te abriga más. (El plan original lo tenía al revés; hay una prueba que muestra el efecto en `tests/historial.test.js`.)
+- Si se cambia la calificación de un outfit, primero se deshace el efecto de la anterior, así no cuenta dos veces. El outfit y el ajuste se guardan juntos en una transacción de Firestore.
+
 ## Autenticación
 
 1. El usuario se loguea con Firebase Auth en el navegador y obtiene un ID token.
@@ -88,7 +100,7 @@ Ver `.env.example`. Nunca commitear `.env.local`.
 
 ## Usuario de prueba
 
-Correr `npm run seed` una vez con `.env.local` completo. Crea (o reutiliza) el usuario y reemplaza su placard por 27 prendas de ejemplo.
+Correr `npm run seed` una vez con `.env.local` completo. Crea (o reutiliza) el usuario, reemplaza su placard por 27 prendas de ejemplo y borra su historial.
 
 - Email: `prueba@pilcha.app`
 - Contraseña: `pilcha-prueba-2026`
