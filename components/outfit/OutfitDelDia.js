@@ -33,7 +33,7 @@ export default async function OutfitDelDia({ user, ubicacion, desde, hasta }) {
     <div className="flex flex-col gap-4">
       {prendas.length === 0 ? (
         <>
-          <RecomendacionGenerica recomendacion={recomendacion} logueado />
+          <RecomendacionGenerica recomendacion={recomendacion} logueado conInvitacion={false} />
           <p className="rounded-2xl border border-dashed border-border p-5 text-muted">
             Todavía no cargaste ropa.{" "}
             <Link href="/placard/nueva" className="font-semibold text-foreground underline">

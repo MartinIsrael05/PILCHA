@@ -3,7 +3,9 @@
 import Link from "next/link";
 import Alertas from "@/components/clima/Alertas";
 
-export default function RecomendacionGenerica({ recomendacion, logueado }) {
+// conInvitacion: en /hoy la invitación a cargar el placard ya se muestra
+// aparte, así que ahí se oculta el pie.
+export default function RecomendacionGenerica({ recomendacion, logueado, conInvitacion = true }) {
   const { tempEfectiva, nivel, textoGenerico, alertas } = recomendacion;
 
   return (
@@ -25,18 +27,24 @@ export default function RecomendacionGenerica({ recomendacion, logueado }) {
         <Alertas alertas={alertas} />
       </div>
 
-      <footer className="text-sm opacity-80">
-        {logueado ? (
-          <p>Muy pronto vas a poder cargar tu placard y el outfit va a salir de tu propia ropa.</p>
-        ) : (
-          <p>
-            <Link href="/registro" className="font-semibold underline">
-              Creá tu cuenta
-            </Link>{" "}
-            y cargá tu placard: te armamos el outfit con tu propia ropa.
-          </p>
-        )}
-      </footer>
+      {conInvitacion && (
+        <footer className="text-sm opacity-80">
+          {logueado ? (
+            <p>
+              <Link href="/hoy" className="font-semibold underline">
+                Mirá el outfit armado con tu placard
+              </Link>
+            </p>
+          ) : (
+            <p>
+              <Link href="/registro" className="font-semibold underline">
+                Creá tu cuenta
+              </Link>{" "}
+              y cargá tu placard: te armamos el outfit con tu propia ropa.
+            </p>
+          )}
+        </footer>
+      )}
     </article>
   );
 }
