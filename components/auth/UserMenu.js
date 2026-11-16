@@ -39,11 +39,18 @@ export default function UserMenu() {
   const nombre = user.nombre || user.email;
 
   return (
-    <div className="flex items-center gap-3 text-sm">
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+      <Link href="/hoy" className="font-medium hover:underline">
+        Hoy
+      </Link>
       <Link href="/placard" className="font-medium hover:underline">
         Mi placard
       </Link>
-      <Link href="/hoy" className="flex items-center gap-2 font-medium hover:underline">
+      <Link
+        href="/perfil"
+        className="flex items-center gap-2 font-medium hover:underline"
+        aria-label={`Mi perfil (${nombre})`}
+      >
         <span
           aria-hidden="true"
           className="flex size-8 items-center justify-center rounded-full bg-foreground text-background"
