@@ -11,6 +11,7 @@ const ITEMS_LOGUEADO = [
   { href: "/hoy", texto: "Hoy" },
   { href: "/placard", texto: "Mi placard" },
   { href: "/historial", texto: "Historial" },
+  { href: "/stats", texto: "Estadísticas" },
   { href: "/paletas", texto: "Paletas" },
   { href: "/perfil", texto: "Mi perfil" },
 ];

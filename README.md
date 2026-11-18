@@ -29,6 +29,8 @@ TP Final de Programación Multimedial III (UMAI). Consigna: https://github.com/l
 | --- | --- |
 | `firebase` | Login con email/contraseña y Google desde el navegador |
 | `firebase-admin` | Verificar sesiones y escribir en Firestore desde el servidor. Es la única forma de validar en el servidor quién es el usuario |
+| `@vercel/blob` | Subir y borrar las fotos de las prendas (Firebase Storage pide plan pago para buckets nuevos) |
+| `recharts` | Gráficos de `/stats`. Arma gráficos de barras accesibles con React sin dibujar el SVG a mano |
 
 **Override de `jose`.** `firebase-admin` usa `jwks-rsa`, que carga `jose` con `require()`. Desde `jose` 6 la librería es solo ESM, y en el runtime de Vercel ese `require()` falla (`ERR_REQUIRE_ESM`) y tira abajo todas las rutas que usan Firebase Admin. En `package.json` forzamos `jose` 5 solo para `jwks-rsa` (`overrides`), que trae versión CommonJS y tiene las mismas dos funciones que usa (`importJWK` y `exportSPKI`).
 
@@ -57,6 +59,13 @@ TP Final de Programación Multimedial III (UMAI). Consigna: https://github.com/l
 - **"Usé este outfit"** (en `/hoy`) guarda el outfit con un snapshot del clima y suma un uso a cada prenda. El clima **no viene del navegador**: la Server Action recibe la ubicación y el horario y lo vuelve a calcular con el pronóstico (que está en caché). También verifica que las prendas sean del usuario.
 - **Calificación** en `/historial/[id]`: frío, bien o calor. Ajusta `ajusteTermico`: frío resta 0.5 y calor suma 0.5, entre -5 y +5. Va en el mismo sentido que el offset de "friolento": si tuviste frío, el día "se siente" más frío para vos y la próxima te abriga más. (El plan original lo tenía al revés; hay una prueba que muestra el efecto en `tests/historial.test.js`.)
 - Si se cambia la calificación de un outfit, primero se deshace el efecto de la anterior, así no cuenta dos veces. El outfit y el ajuste se guardan juntos en una transacción de Firestore.
+
+## Estadísticas
+
+- `/stats` muestra números sueltos (prendas, outfits, cuántos calificaste), las prendas más usadas, los colores del placard agrupados por familia, las prendas nunca usadas y las calificaciones por rango de sensación térmica.
+- Los cálculos están en `lib/stats.js` (con pruebas); los gráficos solo dibujan.
+- **Colores de los gráficos.** Las calificaciones usan un par divergente (azul para frío, rojo para calor, gris al medio para "bien"), validado para daltonismo y contraste en modo claro y oscuro. Las demás series son de un solo color. Cada gráfico tiene leyenda o título, el número escrito en cada barra y una tabla desplegable con los mismos datos, así la información nunca depende solo del color.
+- El seed le carga al usuario de prueba un historial de 9 outfits (8 calificados) para que el dashboard tenga datos.
 
 ## Autenticación
 

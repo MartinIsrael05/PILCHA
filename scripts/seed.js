@@ -1,16 +1,16 @@
 // Carga los datos iniciales en Firestore:
 // 1. Las paletas de colores (una por clima).
-// 2. El usuario de prueba con un placard cargado.
+// 2. El usuario de prueba con un placard cargado y un historial de ejemplo.
 // Se puede correr las veces que haga falta: las paletas se pisan por id y,
-// si el usuario ya existe, se reutiliza y se reemplazan sus prendas (y se
-// borra su historial).
+// si el usuario ya existe, se reutiliza y se reemplazan sus prendas y su
+// historial.
 //
 // Uso:  npm run seed            (paletas + usuario de prueba)
 //       npm run seed:paletas    (solo paletas, no toca el placard)
 // (lee las credenciales de .env.local con la opción --env-file de Node)
 const { initializeApp, cert } = require("firebase-admin/app");
 const { getAuth } = require("firebase-admin/auth");
-const { getFirestore, FieldValue } = require("firebase-admin/firestore");
+const { getFirestore, FieldValue, Timestamp } = require("firebase-admin/firestore");
 
 const USUARIO = {
   email: "prueba@pilcha.app",
@@ -69,6 +69,29 @@ const PALETAS = [
     descripcion:
       "Azules profundos y violetas apagados. Elegantes y fáciles de combinar con negro.",
   },
+];
+
+// Historial de ejemplo, del más nuevo al más viejo.
+// [días atrás, clima, paleta, calificación, prendas]
+const HISTORIAL = [
+  [0.2, { tempMin: 19, tempMax: 26, sensacion: 23, lluviaProb: 10, viento: 12, uv: 8, codigo: 1 }, "soleado-calido", null,
+    ["Remera negra básica", "Short de jean", "Zapatillas blancas"]],
+  [1, { tempMin: 20, tempMax: 27, sensacion: 24, lluviaProb: 5, viento: 10, uv: 9, codigo: 1 }, "soleado-calido", "bien",
+    ["Remera blanca de algodón", "Short de jean", "Zapatillas blancas", "Gorra negra"]],
+  [2, { tempMin: 15, tempMax: 20, sensacion: 18, lluviaProb: 20, viento: 18, uv: 4, codigo: 3 }, "nublado", "frio",
+    ["Camisa a cuadros azul", "Jean azul oscuro", "Zapatillas blancas", "Cardigan fino crema"]],
+  [4, { tempMin: 10, tempMax: 14, sensacion: 12, lluviaProb: 80, viento: 25, uv: 2, codigo: 63 }, "lluvia", "bien",
+    ["Buzo gris de algodón", "Jean azul oscuro", "Botas de lluvia amarillas", "Piloto impermeable verde"]],
+  [5, { tempMin: 23, tempMax: 31, sensacion: 28, lluviaProb: 0, viento: 8, uv: 10, codigo: 0 }, "soleado-calido", "calor",
+    ["Musculosa celeste", "Bermuda beige", "Ojotas negras"]],
+  [7, { tempMin: 6, tempMax: 11, sensacion: 8, lluviaProb: 10, viento: 22, uv: 3, codigo: 2 }, "frio", "frio",
+    ["Sweater de lana verde", "Jean azul oscuro", "Botas de cuero marrón", "Campera de abrigo negra"]],
+  [8, { tempMin: 17, tempMax: 23, sensacion: 20, lluviaProb: 0, viento: 14, uv: 6, codigo: 0 }, "soleado-templado", "bien",
+    ["Remera negra básica", "Pantalón de vestir gris", "Zapatillas de running grises"]],
+  [10, { tempMin: 12, tempMax: 18, sensacion: 15, lluviaProb: 30, viento: 20, uv: 3, codigo: 3 }, "nublado", "bien",
+    ["Buzo gris de algodón", "Jogging negro", "Zapatillas de running grises", "Campera de jean"]],
+  [12, { tempMin: 21, tempMax: 28, sensacion: 25, lluviaProb: 0, viento: 9, uv: 9, codigo: 1 }, "soleado-calido", "calor",
+    ["Remera blanca de algodón", "Jean azul oscuro", "Zapatillas blancas"]],
 ];
 
 // [nombre, categoria, hex, color, abrigo, impermeable]
@@ -168,8 +191,11 @@ async function main() {
   existentes.docs.forEach((doc) => batch.delete(doc.ref));
   outfits.docs.forEach((doc) => batch.delete(doc.ref));
 
+  const refsPorNombre = {};
   PRENDAS.forEach(([nombre, categoria, hex, colorNombre, abrigo, impermeable]) => {
-    batch.set(prendasRef.doc(), {
+    const ref = prendasRef.doc();
+    refsPorNombre[nombre] = ref;
+    batch.set(ref, {
       nombre,
       categoria,
       color: { hex, nombre: colorNombre },
@@ -185,7 +211,48 @@ async function main() {
   await batch.commit();
 
   console.log(`${PRENDAS.length} prendas cargadas.`);
+
+  await cargarHistorial(db, userRef, refsPorNombre);
   console.log(`Ingresá con ${USUARIO.email} / ${USUARIO.password}`);
+}
+
+// 4. Historial de ejemplo: outfits de los últimos días, casi todos ya
+// calificados, para que /historial y /stats tengan algo que mostrar.
+// Los usos de cada prenda y el ajuste térmico salen de este mismo historial.
+async function cargarHistorial(db, userRef, refsPorNombre) {
+  const DELTA = { frio: -0.5, bien: 0, calor: 0.5 }; // igual que lib/historial.js
+  const DIA = 24 * 60 * 60 * 1000;
+  const usos = {};
+  let ajuste = 0;
+
+  const batch = db.batch();
+  HISTORIAL.forEach(([diasAtras, clima, paletaId, calificacion, prendas]) => {
+    const fecha = Timestamp.fromMillis(Date.now() - diasAtras * DIA);
+    batch.set(userRef.collection("outfits").doc(), {
+      prendaIds: prendas.map((nombre) => refsPorNombre[nombre].id),
+      fecha,
+      clima: { ...clima, ciudad: "Buenos Aires" },
+      paletaId,
+      calificacion,
+      nota: "",
+    });
+    for (const nombre of prendas) {
+      const previo = usos[nombre];
+      usos[nombre] = {
+        cantidad: (previo?.cantidad ?? 0) + 1,
+        // El historial va del más nuevo al más viejo: el primero es el último uso.
+        ultimoUso: previo?.ultimoUso ?? fecha,
+      };
+    }
+    ajuste += DELTA[calificacion] ?? 0;
+  });
+
+  for (const [nombre, { cantidad, ultimoUso }] of Object.entries(usos)) {
+    batch.update(refsPorNombre[nombre], { usos: cantidad, ultimoUso });
+  }
+  batch.update(userRef, { ajusteTermico: Math.max(-5, Math.min(5, ajuste)) });
+  await batch.commit();
+  console.log(`${HISTORIAL.length} outfits de ejemplo en el historial.`);
 }
 
 async function cargarPaletas(db) {
