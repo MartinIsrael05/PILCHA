@@ -74,6 +74,13 @@ TP Final de Programación Multimedial III (UMAI). Consigna: https://github.com/l
 - Al guardar, la Server Action vuelve a calcular el plan (no confía en el navegador). El documento `users/{uid}/viajes/{id}` guarda, además de lo del modelo original, el plan de cada día (`dias`: fecha, clima y `prendaIds`) y lo que faltó (`faltantes`); la lista de la valija se deriva de los días.
 - `/viajes/[id]` muestra el plan tal como se guardó y permite borrarlo.
 
+## Admin
+
+- El permiso de admin es un **custom claim** de Firebase (`admin: true`). Viaja firmado dentro de la cookie de sesión, así que el servidor lo valida sin confiar en nada del navegador; las reglas de Firestore piden el mismo claim para escribir en `paletas`. Además se guarda `rol: "admin"` en el documento del usuario, para mostrarlo.
+- `requireAdmin()` (`lib/auth/session.js`) protege `/admin` y las Server Actions de paletas (`lib/actions/paletas.js`). A quien no es admin le responde 404.
+- `/admin` lista las paletas y avisa si algún clima quedó sin paleta; `/admin/nueva` y `/admin/[id]` permiten crear, editar y borrar (de 4 a 6 colores, con vista previa). Al guardar se regeneran `/paletas` y las páginas de cada clima.
+- Para darle admin a una cuenta: `npm run admin -- persona@mail.com` (y `--quitar` para sacárselo). El claim se aplica en el próximo login.
+
 ## Autenticación
 
 1. El usuario se loguea con Firebase Auth en el navegador y obtiene un ID token.
@@ -108,6 +115,7 @@ La app queda en http://localhost:3000.
 | `npm run lint` | ESLint |
 | `npm run seed` | Carga las paletas y crea el usuario de prueba con un placard (necesita `.env.local`) |
 | `npm run seed:paletas` | Carga solo las paletas, sin tocar el placard de prueba |
+| `npm run admin -- <email>` | Le da el rol de admin a una cuenta (`--quitar` para sacárselo) |
 | `npm test` | Pruebas del motor de recomendación y de colores (`node:test`, sin dependencias) |
 
 ## Variables de entorno
@@ -120,3 +128,8 @@ Correr `npm run seed` una vez con `.env.local` completo. Crea (o reutiliza) el u
 
 - Email: `prueba@pilcha.app`
 - Contraseña: `pilcha-prueba-2026`
+
+Admin de prueba (para `/admin`), lo crea el mismo seed:
+
+- Email: `admin@pilcha.app`
+- Contraseña: `pilcha-admin-2026`

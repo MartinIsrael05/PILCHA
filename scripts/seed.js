@@ -1,6 +1,7 @@
 // Carga los datos iniciales en Firestore:
 // 1. Las paletas de colores (una por clima).
 // 2. El usuario de prueba con un placard cargado y un historial de ejemplo.
+// 3. Una cuenta de admin de prueba.
 // Se puede correr las veces que haga falta: las paletas se pisan por id y,
 // si el usuario ya existe, se reutiliza y se reemplazan sus prendas y su
 // historial.
@@ -16,6 +17,13 @@ const USUARIO = {
   email: "prueba@pilcha.app",
   password: "pilcha-prueba-2026",
   nombre: "Usuario de prueba",
+};
+
+// Cuenta de admin de prueba, para entrar a /admin y editar las paletas.
+const ADMIN = {
+  email: "admin@pilcha.app",
+  password: "pilcha-admin-2026",
+  nombre: "Admin de prueba",
 };
 
 // Paletas iniciales. El id del documento es el clima, así volver a correr el
@@ -213,7 +221,40 @@ async function main() {
   console.log(`${PRENDAS.length} prendas cargadas.`);
 
   await cargarHistorial(db, userRef, refsPorNombre);
+  await crearAdmin(auth, db);
   console.log(`Ingresá con ${USUARIO.email} / ${USUARIO.password}`);
+  console.log(`Admin: ${ADMIN.email} / ${ADMIN.password}`);
+}
+
+// 5. Cuenta de admin: custom claim { admin: true } (lo que valida el
+// servidor) y rol "admin" en su documento. Sin placard ni historial.
+async function crearAdmin(auth, db) {
+  let admin;
+  try {
+    admin = await auth.getUserByEmail(ADMIN.email);
+  } catch (error) {
+    if (error.code !== "auth/user-not-found") throw error;
+    admin = await auth.createUser({
+      email: ADMIN.email,
+      password: ADMIN.password,
+      displayName: ADMIN.nombre,
+    });
+  }
+  await auth.setCustomUserClaims(admin.uid, { admin: true });
+  await db.collection("users").doc(admin.uid).set(
+    {
+      nombre: ADMIN.nombre,
+      email: ADMIN.email,
+      rol: "admin",
+      ciudad: { nombre: "Buenos Aires", lat: -34.61, lon: -58.38 },
+      horaSalida: 9,
+      horaVuelta: 20,
+      sensibilidad: "normal",
+      ajusteTermico: 0,
+    },
+    { merge: true }
+  );
+  console.log(`Admin listo: ${admin.uid}`);
 }
 
 // 4. Historial de ejemplo: outfits de los últimos días, casi todos ya

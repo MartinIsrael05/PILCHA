@@ -10,14 +10,27 @@ import { auth } from "@/lib/firebase/client";
 const AuthContext = createContext(null);
 
 // Guardamos un objeto simple con lo que la UI necesita.
-function aUsuarioUI(firebaseUser) {
+// esAdmin sale del custom claim del token y solo sirve para mostrar el link
+// al panel: quien protege /admin es requireAdmin() en el servidor.
+function aUsuarioUI(firebaseUser, esAdmin = false) {
   if (!firebaseUser) return null;
   return {
     uid: firebaseUser.uid,
     email: firebaseUser.email,
     nombre: firebaseUser.displayName ?? "",
     foto: firebaseUser.photoURL ?? null,
+    esAdmin,
   };
+}
+
+async function leerEsAdmin(firebaseUser) {
+  if (!firebaseUser) return false;
+  try {
+    const { claims } = await firebaseUser.getIdTokenResult();
+    return claims.admin === true;
+  } catch {
+    return false;
+  }
 }
 
 export function AuthProvider({ children }) {
@@ -27,8 +40,8 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     // onAuthStateChanged devuelve la función para dejar de escuchar,
     // que React llama al desmontar el componente.
-    return onAuthStateChanged(auth, (firebaseUser) => {
-      setUser(aUsuarioUI(firebaseUser));
+    return onAuthStateChanged(auth, async (firebaseUser) => {
+      setUser(aUsuarioUI(firebaseUser, await leerEsAdmin(firebaseUser)));
       setCargando(false);
     });
   }, []);
@@ -36,7 +49,7 @@ export function AuthProvider({ children }) {
   // Para cuando cambian datos del perfil de Firebase (por ejemplo el nombre
   // al registrarse), que no disparan onAuthStateChanged.
   function refrescarUsuario() {
-    setUser(aUsuarioUI(auth.currentUser));
+    setUser((previo) => aUsuarioUI(auth.currentUser, previo?.esAdmin ?? false));
   }
 
   async function logout() {
