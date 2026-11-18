@@ -37,9 +37,14 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
+    // suppressHydrationWarning: el boot script (líneas abajo) escribe
+    // data-theme antes de que React hidrate. React ve ese atributo en el DOM
+    // pero no en su HTML server (que no conoce el localStorage del usuario),
+    // y marca el diff. Solo afecta este atributo del <html>, no a los hijos.
     <html
       lang="es"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col">
         {/* beforeInteractive: corre antes del primer render. Previene el flash. */}
