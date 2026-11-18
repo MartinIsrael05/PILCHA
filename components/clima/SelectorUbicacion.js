@@ -1,10 +1,10 @@
-"use client"; // Usa la geolocalización del navegador, localStorage y estado del buscador.
+"use client"; // Usa la geolocalización del navegador, localStorage y navegación.
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { redondearCoordenada } from "@/lib/ubicacion";
-import useBuscarCiudad from "@/hooks/useBuscarCiudad";
 import Button from "@/components/ui/Button";
+import BuscadorCiudad from "@/components/clima/BuscadorCiudad";
 
 // Recordamos la última ubicación elegida en este navegador para no tener
 // que pedirla cada vez que alguien entra sin estar logueado.
@@ -16,9 +16,12 @@ export default function SelectorUbicacion({ ubicacionActual }) {
   const searchParams = useSearchParams();
 
   const [localizando, setLocalizando] = useState(false);
-  // Buscador con debounce (hooks/useBuscarCiudad.js).
-  const { texto, resultados, buscando, mensaje, setMensaje, cambiarTexto, limpiar } =
-    useBuscarCiudad();
+  // El BuscadorCiudad nos presta su setter de mensaje para avisar errores
+  // de geolocalización ("no diste permiso", etc.) en el mismo lugar.
+  const setMensajeRef = useRef(null);
+  function setMensaje(m) {
+    setMensajeRef.current?.(m);
+  }
 
   // Cambia la URL con la nueva ubicación. La página (Server Component) lee
   // la URL y pide el clima en el servidor.
@@ -27,10 +30,7 @@ export default function SelectorUbicacion({ ubicacionActual }) {
     params.set("lat", redondearCoordenada(ubicacion.lat));
     params.set("lon", redondearCoordenada(ubicacion.lon));
     params.set("ciudad", ubicacion.nombre);
-
     guardarUbicacion(ubicacion);
-    limpiar();
-
     const url = `${pathname}?${params}`;
     if (reemplazar) router.replace(url, { scroll: false });
     else router.push(url, { scroll: false });
@@ -41,7 +41,6 @@ export default function SelectorUbicacion({ ubicacionActual }) {
     if (ubicacionActual) return;
     const guardada = leerUbicacionGuardada();
     if (!guardada) return;
-
     const params = new URLSearchParams(searchParams);
     params.set("lat", guardada.lat);
     params.set("lon", guardada.lon);
@@ -54,17 +53,12 @@ export default function SelectorUbicacion({ ubicacionActual }) {
       setMensaje("Tu navegador no permite compartir la ubicación. Buscá tu ciudad.");
       return;
     }
-
     setLocalizando(true);
     setMensaje(null);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setLocalizando(false);
-        irA({
-          nombre: "Tu ubicación",
-          lat: pos.coords.latitude,
-          lon: pos.coords.longitude,
-        });
+        irA({ nombre: "Tu ubicación", lat: pos.coords.latitude, lon: pos.coords.longitude });
       },
       (error) => {
         setLocalizando(false);
@@ -103,42 +97,13 @@ export default function SelectorUbicacion({ ubicacionActual }) {
         </Button>
       </div>
 
-      <div className="relative">
-        <label htmlFor="buscar-ciudad" className="sr-only">
-          Buscar ciudad
-        </label>
-        <input
-          id="buscar-ciudad"
-          type="search"
-          value={texto}
-          onChange={(e) => cambiarTexto(e.target.value)}
-          placeholder="O buscá una ciudad, por ejemplo Rosario"
-          autoComplete="off"
-          className="w-full rounded-lg border border-border bg-background px-3 py-2.5 outline-none focus:border-foreground"
-        />
-
-        {resultados.length > 0 && (
-          <ul className="absolute z-10 mt-1 w-full overflow-hidden rounded-lg border border-border bg-background shadow-lg">
-            {resultados.map((ciudad) => (
-              <li key={ciudad.id}>
-                <button
-                  type="button"
-                  onClick={() => irA(ciudad)}
-                  className="flex w-full flex-col items-start px-3 py-2 text-left hover:bg-border/50 focus-visible:bg-border/50 focus-visible:outline-none"
-                >
-                  <span className="font-medium">{ciudad.nombre}</span>
-                  <span className="text-xs text-muted">{ciudad.detalle}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      {/* aria-live: los lectores de pantalla anuncian estos mensajes */}
-      <p aria-live="polite" className="min-h-5 text-sm text-muted">
-        {buscando ? "Buscando…" : mensaje}
-      </p>
+      <BuscadorCiudad
+        id="buscar-ciudad"
+        etiqueta="Buscar ciudad"
+        placeholder="O buscá una ciudad, por ejemplo Rosario"
+        onElegir={irA}
+        setMensajeExterno={(fn) => (setMensajeRef.current = fn)}
+      />
     </div>
   );
 }

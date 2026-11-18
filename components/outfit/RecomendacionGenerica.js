@@ -13,11 +13,11 @@ export default function RecomendacionGenerica({ recomendacion, logueado, conInvi
   return (
     <article className="flex flex-col gap-5 rounded-2xl bg-[var(--tema-acento,var(--foreground))] p-5 text-[var(--tema-acento-texto,var(--background))] sm:p-6">
       <header className="flex flex-col gap-1">
-        <p className="text-sm opacity-70">
+        <p className="text-sm font-medium opacity-80">
           {/* tempEfectiva ya incluye la sensibilidad del perfil */}
           Para vos se siente como {Math.round(tempEfectiva)}° · {nivel.nombre}
         </p>
-        <h3 className="text-sm font-semibold uppercase tracking-widest opacity-70">
+        <h3 className="text-sm font-semibold uppercase tracking-widest opacity-80">
           Qué ponerte hoy
         </h3>
       </header>

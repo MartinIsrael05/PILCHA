@@ -10,8 +10,22 @@ import {
   contraste,
   colorDeTexto,
   colorAcento,
+  nombreDesdeHex,
   PUNTAJE,
 } from "../lib/colores.js";
+
+test("nombreDesdeHex devuelve nombres familiares", () => {
+  assert.equal(nombreDesdeHex("#ff0000"), "rojo");
+  assert.equal(nombreDesdeHex("#0000ff"), "azul");
+  assert.equal(nombreDesdeHex("#ffffff"), "blanco");
+  assert.equal(nombreDesdeHex("#000000"), "negro");
+  assert.equal(nombreDesdeHex("#808080"), "gris");
+  assert.equal(nombreDesdeHex("#5b3a29"), "marrón");
+});
+
+test("nombreDesdeHex degrada con hex inválido", () => {
+  assert.equal(nombreDesdeHex("rojo"), "");
+});
 
 test("hexAHsl convierte colores conocidos", () => {
   assert.deepEqual(hexAHsl("#ff0000"), { h: 0, s: 100, l: 50 });

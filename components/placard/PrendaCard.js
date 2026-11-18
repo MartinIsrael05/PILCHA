@@ -2,8 +2,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import { CATEGORIAS, NIVELES_ABRIGO } from "@/lib/prendas";
+import { colorDeTexto } from "@/lib/colores";
+import IconoCategoria from "@/components/placard/IconoCategoria";
 
 export default function PrendaCard({ prenda }) {
+  // Sin foto: el cuadrado de color queda con un ícono de la categoría del
+  // color opuesto (blanco o negro), para distinguir remera de pantalón de un
+  // vistazo.
+  const colorIcono = colorDeTexto(prenda.color.hex);
   return (
     <li>
       <Link
@@ -14,13 +20,19 @@ export default function PrendaCard({ prenda }) {
           className="relative flex aspect-square items-center justify-center"
           style={{ backgroundColor: prenda.color.hex }}
         >
-          {prenda.imagenUrl && (
+          {prenda.imagenUrl ? (
             <Image
               src={prenda.imagenUrl}
               alt={prenda.nombre}
               fill
               sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
               className="object-cover"
+            />
+          ) : (
+            <IconoCategoria
+              categoria={prenda.categoria}
+              className="size-16 opacity-80"
+              style={{ color: colorIcono }}
             />
           )}
         </div>

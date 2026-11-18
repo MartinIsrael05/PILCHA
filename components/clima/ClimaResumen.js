@@ -45,22 +45,39 @@ export default function ClimaResumen({ clima, actual, desde, hasta }) {
 
       <div>
         <h3 className="mb-2 text-sm font-medium text-muted">Hora por hora</h3>
-        {/* Scroll horizontal solo dentro de esta tira, no en toda la página */}
-        <ol className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-2">
-          {clima.horas.map((h) => (
-            <li
-              key={h.hora}
-              className="flex min-w-14 flex-col items-center gap-1 rounded-xl bg-border/40 px-2 py-2 text-sm"
-            >
-              <span className="text-xs text-muted">{h.hora}h</span>
-              <span aria-hidden="true">{describirCodigo(h.codigo, h.esDeDia).icono}</span>
-              <span className="font-semibold">{Math.round(h.temp)}°</span>
-              <span className="text-xs text-muted" title="Probabilidad de lluvia">
-                {h.lluviaProb}%
-              </span>
-            </li>
-          ))}
-        </ol>
+        {/* Scroll horizontal con fade en el borde derecho, para que se note
+            que hay más horas si no entran en pantalla. El mask-image aplica
+            una máscara que desvanece el final. */}
+        <div
+          className="relative -mx-1"
+          style={{
+            maskImage:
+              "linear-gradient(to right, black 0, black calc(100% - 2rem), transparent 100%)",
+            WebkitMaskImage:
+              "linear-gradient(to right, black 0, black calc(100% - 2rem), transparent 100%)",
+          }}
+        >
+          <ol
+            className="flex gap-2 overflow-x-auto px-1 pb-2"
+            // Scroll suave con teclado (flechas en Firefox/Safari usan la lista).
+            tabIndex={0}
+            aria-label="Pronóstico hora por hora"
+          >
+            {clima.horas.map((h) => (
+              <li
+                key={h.hora}
+                className="flex min-w-14 flex-col items-center gap-1 rounded-xl bg-border/40 px-2 py-2 text-sm"
+              >
+                <span className="text-xs text-muted">{h.hora}h</span>
+                <span aria-hidden="true">{describirCodigo(h.codigo, h.esDeDia).icono}</span>
+                <span className="font-semibold">{Math.round(h.temp)}°</span>
+                <span className="text-xs text-muted" title="Probabilidad de lluvia">
+                  {h.lluviaProb}%
+                </span>
+              </li>
+            ))}
+          </ol>
+        </div>
       </div>
     </article>
   );

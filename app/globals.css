@@ -4,17 +4,51 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --muted: #6b7280;
+  --muted: #5b6270;
   --border: #e5e7eb;
 }
 
+/* Modo oscuro: el que elige el usuario (data-theme) pisa al del sistema. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --background: #0a0a0a;
     --foreground: #ededed;
-    --muted: #9ca3af;
+    --muted: #b7bcc5;
     --border: #27272a;
   }
+}
+:root[data-theme="dark"] {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --muted: #b7bcc5;
+  --border: #27272a;
+}
+
+/* Respetar preferencias de "menos animación" (accesibilidad). */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Link invisible que aparece al enfocar con tab: "saltar al contenido". */
+.skip-link {
+  position: absolute;
+  top: -3rem;
+  left: 0.5rem;
+  z-index: 50;
+  background: var(--foreground);
+  color: var(--background);
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  transition: top 0.15s ease;
+}
+.skip-link:focus {
+  top: 0.5rem;
 }
 
 /* Expone las variables como clases de Tailwind: bg-background, text-muted, border-border, etc. */

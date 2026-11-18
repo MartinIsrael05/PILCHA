@@ -5,23 +5,38 @@ import Link from "next/link";
 import Image from "next/image";
 import Alertas from "@/components/clima/Alertas";
 import { CATEGORIAS } from "@/lib/prendas";
+import { CLIMAS } from "@/lib/paletas";
 
 // children: acciones que van al pie de la tarjeta (por ejemplo "Usé este outfit").
-export default function OutfitSugerido({ recomendacion, children }) {
+// paleta (opcional): se muestra como chip arriba a la derecha.
+export default function OutfitSugerido({ recomendacion, paleta, children }) {
   const { tempEfectiva, nivel, outfit, alertas } = recomendacion;
   const faltan = outfit.filter((item) => !item.prenda && !item.opcional);
+  const climaPaleta = paleta ? CLIMAS[paleta.clima] : null;
 
   // Fondo con el acento de la paleta del día (variables CSS que define
   // OutfitDelDia). Si no hay paleta, vuelve a los colores de siempre.
   return (
     <article className="flex flex-col gap-5 rounded-2xl bg-[var(--tema-acento,var(--foreground))] p-5 text-[var(--tema-acento-texto,var(--background))] sm:p-6">
-      <header className="flex flex-col gap-1">
-        <p className="text-sm opacity-70">
-          Para vos se siente como {Math.round(tempEfectiva)}° · {nivel.nombre}
-        </p>
-        <h2 className="text-sm font-semibold uppercase tracking-widest opacity-70">
-          Tu outfit de hoy
-        </h2>
+      <header className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex flex-col gap-1">
+          {/* opacity-80 en vez de 70 para mejor contraste WCAG */}
+          <p className="text-sm font-medium opacity-80">
+            Para vos se siente como {Math.round(tempEfectiva)}° · {nivel.nombre}
+          </p>
+          <h2 className="text-sm font-semibold uppercase tracking-widest opacity-80">
+            Tu outfit de hoy
+          </h2>
+        </div>
+        {paleta && (
+          <Link
+            href={`/paletas/${paleta.clima}`}
+            className="inline-flex items-center gap-1.5 rounded-full bg-background px-3 py-1 text-xs font-medium text-foreground hover:underline"
+          >
+            <span aria-hidden="true">{climaPaleta?.icono}</span>
+            Paleta: {paleta.nombre}
+          </Link>
+        )}
       </header>
 
       <ul className="grid gap-3 sm:grid-cols-2">
@@ -59,7 +74,7 @@ export default function OutfitSugerido({ recomendacion, children }) {
       </div>
 
       {faltan.length > 0 && (
-        <p className="text-sm opacity-80">
+        <p className="text-sm opacity-90">
           Te faltan prendas para completar el outfit.{" "}
           <Link href="/placard/nueva" className="font-semibold underline">
             Cargá más ropa

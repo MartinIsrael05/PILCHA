@@ -1,6 +1,6 @@
 "use client"; // Usa estado del formulario, useActionState y valida en el navegador antes de enviar.
 
-import { useState, useActionState } from "react";
+import { useRef, useState, useActionState } from "react";
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
@@ -13,8 +13,19 @@ import {
   validarPrenda,
   validarFoto,
 } from "@/lib/prendas";
+import { nombreDesdeHex } from "@/lib/colores";
 
 const ESTADO_INICIAL = { errores: {}, mensaje: null };
+
+// Nivel de abrigo típico según categoría. Si el usuario cambia la categoría
+// y no tocó el abrigo, pisamos el default para el flujo sea más rápido.
+const ABRIGO_POR_CATEGORIA = {
+  superior: "1",
+  inferior: "2",
+  calzado: "2",
+  abrigo: "3",
+  accesorio: "1",
+};
 
 // `accion` es una Server Action (crearPrenda o editarPrenda ya con el id).
 // `prenda` solo viene cuando se edita.
@@ -29,6 +40,11 @@ export default function PrendaForm({ accion, prenda = null }) {
     impermeable: prenda?.impermeable ?? false,
   });
   const [erroresLocales, setErroresLocales] = useState({});
+  // Si el usuario escribió un nombre de color, no se lo pisamos al cambiar hex.
+  const nombreTocadoRef = useRef(Boolean(prenda?.color.nombre));
+  // Si el usuario eligió un nivel de abrigo, respetamos su elección al
+  // cambiar de categoría.
+  const abrigoTocadoRef = useRef(Boolean(prenda));
 
   // Los errores del servidor se muestran si el cliente no encontró ninguno.
   const errores = { ...estado.errores, ...erroresLocales };
@@ -36,11 +52,37 @@ export default function PrendaForm({ accion, prenda = null }) {
   function cambiar(campo) {
     return (event) => {
       const { type, checked, value } = event.target;
+      if (campo === "colorNombre") nombreTocadoRef.current = true;
+      if (campo === "abrigo") abrigoTocadoRef.current = true;
       setValores((previos) => ({
         ...previos,
         [campo]: type === "checkbox" ? checked : value,
       }));
     };
+  }
+
+  // Cambiar categoría: si el usuario no tocó el abrigo, le damos el nivel
+  // típico (ej. "Abrigo" sube a 3). Más rápido de completar.
+  function cambiarCategoria(event) {
+    const categoria = event.target.value;
+    setValores((previos) => ({
+      ...previos,
+      categoria,
+      abrigo: abrigoTocadoRef.current
+        ? previos.abrigo
+        : ABRIGO_POR_CATEGORIA[categoria] ?? previos.abrigo,
+    }));
+  }
+
+  // Cambiar color: si el usuario no escribió un nombre, sugerimos uno
+  // (rojo, azul, beige...). Así la gran mayoría no tiene que pensarlo.
+  function cambiarColor(event) {
+    const colorHex = event.target.value;
+    setValores((previos) => ({
+      ...previos,
+      colorHex,
+      colorNombre: nombreTocadoRef.current ? previos.colorNombre : nombreDesdeHex(colorHex),
+    }));
   }
 
   // Validación en el cliente: es la misma función que usa el servidor, pero
@@ -78,7 +120,7 @@ export default function PrendaForm({ accion, prenda = null }) {
         name="categoria"
         label="Categoría"
         value={valores.categoria}
-        onChange={cambiar("categoria")}
+        onChange={cambiarCategoria}
         error={errores.categoria}
       >
         <option value="">Elegí una…</option>
@@ -99,7 +141,7 @@ export default function PrendaForm({ accion, prenda = null }) {
             name="colorHex"
             type="color"
             value={valores.colorHex}
-            onChange={cambiar("colorHex")}
+            onChange={cambiarColor}
             className="h-11 w-20 cursor-pointer rounded-lg border border-border bg-background p-1"
           />
         </div>
