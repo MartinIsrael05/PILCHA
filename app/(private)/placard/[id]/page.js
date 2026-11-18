@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/session";
 import { getPrenda } from "@/lib/data/prendas";
@@ -25,7 +26,10 @@ export default async function PrendaPage({ params }) {
   const accion = editarPrenda.bind(null, prenda.id);
 
   return (
-    <section className="flex flex-col gap-8">
+    <section className="flex flex-col gap-6">
+      <Link href="/placard" className="text-sm text-muted hover:underline">
+        ← Volver al placard
+      </Link>
       <h1 className="text-3xl font-bold">{prenda.nombre}</h1>
       <PrendaForm accion={accion} prenda={prenda} />
       <div className="max-w-xl border-t border-border pt-6">
