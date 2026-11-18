@@ -35,6 +35,14 @@ export const metadata = {
     "Te armamos el outfit del día con la ropa de tu placard según el clima de donde estás.",
 };
 
+// Color de la barra del navegador en el celular, según el tema del sistema.
+export const viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+  ],
+};
+
 export default function RootLayout({ children }) {
   return (
     // suppressHydrationWarning: el boot script (líneas abajo) escribe
