@@ -67,6 +67,13 @@ TP Final de Programación Multimedial III (UMAI). Consigna: https://github.com/l
 - **Colores de los gráficos.** Las calificaciones usan un par divergente (azul para frío, rojo para calor, gris al medio para "bien"), validado para daltonismo y contraste en modo claro y oscuro. Las demás series son de un solo color. Cada gráfico tiene leyenda o título, el número escrito en cada barra y una tabla desplegable con los mismos datos, así la información nunca depende solo del color.
 - El seed le carga al usuario de prueba un historial de 9 outfits (8 calificados) para que el dashboard tenga datos.
 
+## Modo viaje
+
+- En `/viajes` elegís destino y fechas (hasta 14 días, lo que cubre el pronóstico). La ciudad y las fechas van en la URL, así la vista previa se calcula en el servidor.
+- `armarValija()` (`lib/viajes.js`, con pruebas) corre el motor para cada día y **reusa lo que ya está en la valija**: remeras y camisas hasta 2 días, el resto todo lo que haga falta. Solo suma una prenda nueva si nada de lo cargado sirve, y si en todo el placard no hay nada para una categoría, lo avisa.
+- Al guardar, la Server Action vuelve a calcular el plan (no confía en el navegador). El documento `users/{uid}/viajes/{id}` guarda, además de lo del modelo original, el plan de cada día (`dias`: fecha, clima y `prendaIds`) y lo que faltó (`faltantes`); la lista de la valija se deriva de los días.
+- `/viajes/[id]` muestra el plan tal como se guardó y permite borrarlo.
+
 ## Autenticación
 
 1. El usuario se loguea con Firebase Auth en el navegador y obtiene un ID token.

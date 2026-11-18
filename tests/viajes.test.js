@@ -8,6 +8,7 @@ import {
   formatearDia,
   resumenClima,
   validarFechas,
+  valijaDesdeDias,
 } from "../lib/viajes.js";
 
 const prenda = (id, categoria, abrigo, extra = {}) => ({
@@ -119,4 +120,32 @@ test("armarValija avisa qué falta si el placard no alcanza", () => {
 
 test("formatearDia no se corre por la zona horaria", () => {
   assert.equal(formatearDia("2026-11-21"), "sáb, 21 nov");
+});
+
+test("valijaDesdeDias junta las fechas de cada prenda", () => {
+  assert.deepEqual(
+    valijaDesdeDias([
+      { fecha: "2026-11-20", prendaIds: ["a", "b"] },
+      { fecha: "2026-11-21", prendaIds: ["a", "c"] },
+    ]),
+    [
+      { prendaId: "a", fechas: ["2026-11-20", "2026-11-21"] },
+      { prendaId: "b", fechas: ["2026-11-20"] },
+      { prendaId: "c", fechas: ["2026-11-21"] },
+    ]
+  );
+});
+
+test("si la única prenda que sirve ya usó sus días, se repite en vez de faltar", () => {
+  // Un solo buzo para tres días de frío: mejor repetirlo que ir sin nada.
+  const prendas = [
+    prenda("buzo", "superior", 3),
+    prenda("jean", "inferior", 3),
+    prenda("botas", "calzado", 3),
+    prenda("campera", "abrigo", 4),
+  ];
+  const dias = ["2026-11-20", "2026-11-21", "2026-11-22"].map((f) => dia(f, 9));
+  const { porDia, faltantes } = armarValija({ dias, prendas });
+  assert.deepEqual(faltantes, []);
+  assert.ok(porDia.every((d) => d.prendaIds.includes("buzo")));
 });
