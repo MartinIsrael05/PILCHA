@@ -61,7 +61,9 @@ export default function UserMenu() {
   // Reservamos el espacio del header mientras Firebase averigua la sesión.
   if (cargando) return <div className="h-10 w-32" aria-hidden="true" />;
 
-  const items = user ? ITEMS_LOGUEADO : ITEMS_PUBLICOS;
+  const items = user
+    ? [...ITEMS_LOGUEADO, ...(user.esAdmin ? [{ href: "/admin", texto: "Admin" }] : [])]
+    : ITEMS_PUBLICOS;
   const nombre = user ? user.nombre || user.email : null;
 
   return (
