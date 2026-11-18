@@ -24,6 +24,33 @@
   --border: #27272a;
 }
 
+/* Colores de los gráficos de /stats, validados para daltonismo y contraste
+   (ver README). Frío y calor son un par divergente azul/rojo con gris al
+   medio para "bien". En oscuro no se invierten: son pasos propios. */
+:root {
+  --stats-serie: #2a78d6;
+  --stats-frio: #2a78d6;
+  --stats-bien: #a8a7a0;
+  --stats-calor: #e34948;
+  --stats-grilla: #ececea;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --stats-serie: #3987e5;
+    --stats-frio: #3987e5;
+    --stats-bien: #61605a;
+    --stats-calor: #e66767;
+    --stats-grilla: #262624;
+  }
+}
+:root[data-theme="dark"] {
+  --stats-serie: #3987e5;
+  --stats-frio: #3987e5;
+  --stats-bien: #61605a;
+  --stats-calor: #e66767;
+  --stats-grilla: #262624;
+}
+
 /* Respetar preferencias de "menos animación" (accesibilidad). */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
