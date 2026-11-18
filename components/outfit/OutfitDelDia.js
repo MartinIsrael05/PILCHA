@@ -10,7 +10,6 @@ import { variablesDeTema } from "@/lib/paletas";
 import ClimaResumen from "@/components/clima/ClimaResumen";
 import OutfitSugerido from "@/components/outfit/OutfitSugerido";
 import RecomendacionGenerica from "@/components/outfit/RecomendacionGenerica";
-import PaletaDelDia from "@/components/paletas/PaletaDelDia";
 import UsarOutfit from "@/components/outfit/UsarOutfit";
 
 export default async function OutfitDelDia({ user, ubicacion, desde, hasta }) {
@@ -58,7 +57,7 @@ export default async function OutfitDelDia({ user, ubicacion, desde, hasta }) {
           </p>
         </>
       ) : (
-        <OutfitSugerido recomendacion={recomendacion}>
+        <OutfitSugerido recomendacion={recomendacion} paleta={paleta}>
           {prendaIds.length > 0 && (
             <UsarOutfit
               prendaIds={prendaIds}
@@ -69,7 +68,6 @@ export default async function OutfitDelDia({ user, ubicacion, desde, hasta }) {
           )}
         </OutfitSugerido>
       )}
-      <PaletaDelDia paleta={paleta} />
       <ClimaResumen
         clima={clima}
         actual={pronostico.current}

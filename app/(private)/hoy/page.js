@@ -26,10 +26,7 @@ export default async function HoyPage({ searchParams }) {
 
   return (
     <section className="flex flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-bold">{saludo}</h1>
-        <p className="text-muted">Esto es lo que te recomendamos ponerte hoy.</p>
-      </div>
+      <h1 className="text-3xl font-bold">{saludo}</h1>
 
       <SelectorUbicacion ubicacionActual={ubicacion} />
 
