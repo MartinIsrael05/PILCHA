@@ -7,14 +7,18 @@
 // vuelta. Mientras arrastrás ves qué parte del día te toca: el fresco de la
 // mañana, el calor de la tarde. Ese es justo el problema que resuelve la app.
 //
-// Los tiradores son dos <input type="range"> nativos superpuestos: andan con
-// teclado (flechas) y lectores de pantalla sin sumar librerías.
+// Cómo funciona el arrastre: toda la zona (barras + pista) escucha los
+// eventos de puntero (mouse, dedo o lápiz). Al tocar, se elige el tirador
+// más cercano y se lo mueve mientras dure el arrastre. Los tiradores son
+// <div role="slider">: se enfocan con Tab y se mueven con las flechas.
+// No usamos <input type="range"> superpuestos porque ese truco depende de
+// CSS frágil y falla en algunos navegadores (por ejemplo Safari en iPhone).
 import { useEffect, useRef, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 const ULTIMA_HORA = 23;
-// Cuánto esperar después del último movimiento para pedir el pronóstico.
-// Así no se navega una vez por cada hora que pasa el tirador.
+// Con el teclado, esperamos un poco después de la última flecha antes de
+// pedir el pronóstico, así no se navega una vez por cada hora.
 const ESPERA_MS = 450;
 
 const ATAJOS = [
@@ -24,10 +28,9 @@ const ATAJOS = [
   { texto: "A la noche", desde: 19, hasta: 23 },
 ];
 
-// Medio ancho del tirador en px (los tiradores miden 20 px, ver globals.css).
-// El centro del tirador nunca llega al borde del input: queda a esta
-// distancia. Las barras usan el mismo margen para quedar alineadas.
-const MEDIO_TIRADOR = 10;
+// Margen a cada lado de la pista, en px: la hora 0 y la 23 quedan a esta
+// distancia del borde para que el tirador (20 px) no se salga.
+const MARGEN = 10;
 
 export default function SelectorHorario({ desde, hasta, horas, paraManana, horaActual }) {
   const router = useRouter();
@@ -36,13 +39,20 @@ export default function SelectorHorario({ desde, hasta, horas, paraManana, horaA
   const [pendiente, startTransition] = useTransition();
 
   // Estado local: se mueve al instante mientras arrastrás. La URL se
-  // actualiza recién cuando soltás (o dejás de tocar las flechas).
+  // actualiza recién al soltar. rangoRef tiene siempre el último valor para
+  // leerlo dentro de los eventos sin esperar al próximo render.
   const [rango, setRango] = useState({ desde, hasta });
+  const rangoRef = useRef(rango);
   const timer = useRef(null);
+  const zona = useRef(null);
+  const arrastrando = useRef(null); // "desde", "hasta" o null
+  const tiradorDesde = useRef(null);
+  const tiradorHasta = useRef(null);
   useEffect(() => () => clearTimeout(timer.current), []);
 
   function aplicar(nuevo) {
     clearTimeout(timer.current);
+    if (nuevo.desde === desde && nuevo.hasta === hasta) return; // nada cambió
     const params = new URLSearchParams(searchParams);
     params.set("desde", nuevo.desde);
     params.set("hasta", nuevo.hasta);
@@ -51,20 +61,79 @@ export default function SelectorHorario({ desde, hasta, horas, paraManana, horaA
     });
   }
 
-  function mover(campo, valor) {
-    const v = Number(valor);
-    // La salida siempre antes que la vuelta, con al menos una hora entre medio.
+  // Mueve un tirador a una hora. La salida siempre queda antes que la
+  // vuelta, con al menos una hora entre medio.
+  function mover(campo, hora) {
+    const actual = rangoRef.current;
+    const h = Math.min(Math.max(hora, 0), ULTIMA_HORA);
     const nuevo =
       campo === "desde"
-        ? { desde: Math.min(v, rango.hasta - 1), hasta: rango.hasta }
-        : { desde: rango.desde, hasta: Math.max(v, rango.desde + 1) };
+        ? { desde: Math.min(h, actual.hasta - 1), hasta: actual.hasta }
+        : { desde: actual.desde, hasta: Math.max(h, actual.desde + 1) };
+    rangoRef.current = nuevo;
     setRango(nuevo);
+    return nuevo;
+  }
+
+  // Qué hora corresponde a una posición horizontal del puntero.
+  function horaEn(clientX) {
+    const r = zona.current.getBoundingClientRect();
+    const proporcion = (clientX - r.left - MARGEN) / (r.width - MARGEN * 2);
+    return Math.round(proporcion * ULTIMA_HORA);
+  }
+
+  // --- Puntero (mouse, dedo o lápiz) ---------------------------------------
+  function alApretar(e) {
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    const h = horaEn(e.clientX);
+    const { desde: d, hasta: v } = rangoRef.current;
+    // El tirador más cercano. Si tocás afuera del rango, el del lado que tocaste.
+    const campo = h <= d ? "desde" : h >= v ? "hasta" : h - d <= v - h ? "desde" : "hasta";
+    arrastrando.current = campo;
+    // Capturamos el puntero: seguimos recibiendo los movimientos aunque el
+    // dedo o el mouse se salgan de la zona.
+    e.currentTarget.setPointerCapture(e.pointerId);
+    const tirador = campo === "desde" ? tiradorDesde : tiradorHasta;
+    tirador.current?.focus({ preventScroll: true });
+    clearTimeout(timer.current);
+    mover(campo, h);
+  }
+
+  function alMover(e) {
+    if (!arrastrando.current) return;
+    mover(arrastrando.current, horaEn(e.clientX));
+  }
+
+  function alSoltar() {
+    if (!arrastrando.current) return;
+    arrastrando.current = null;
+    aplicar(rangoRef.current);
+  }
+
+  // --- Teclado --------------------------------------------------------------
+  function alTeclear(campo, e) {
+    const pasos = {
+      ArrowLeft: -1,
+      ArrowDown: -1,
+      ArrowRight: 1,
+      ArrowUp: 1,
+      PageDown: -3,
+      PageUp: 3,
+    };
+    let hora;
+    if (e.key in pasos) hora = rangoRef.current[campo] + pasos[e.key];
+    else if (e.key === "Home") hora = 0;
+    else if (e.key === "End") hora = ULTIMA_HORA;
+    else return;
+    e.preventDefault();
+    const nuevo = mover(campo, hora);
     clearTimeout(timer.current);
     timer.current = setTimeout(() => aplicar(nuevo), ESPERA_MS);
   }
 
   function elegirAtajo(atajo) {
     const nuevo = { desde: atajo.desde, hasta: atajo.hasta };
+    rangoRef.current = nuevo;
     setRango(nuevo);
     aplicar(nuevo);
   }
@@ -83,7 +152,7 @@ export default function SelectorHorario({ desde, hasta, horas, paraManana, horaA
             Tu horario afuera {paraManana ? "mañana" : "hoy"}
           </h2>
           <p className="text-2xl font-bold tracking-tight" aria-live="polite">
-            {rango.desde}:00 a {rango.hasta}:00
+            {`${rango.desde}:00 a ${rango.hasta}:00`}
             <span className="ml-2 text-base font-medium text-muted">
               {duracion} {duracion === 1 ? "hora" : "horas"}
             </span>
@@ -112,46 +181,45 @@ export default function SelectorHorario({ desde, hasta, horas, paraManana, horaA
         </div>
       </header>
 
-      <div className={`flex flex-col gap-2 transition-opacity ${cambiando ? "opacity-70" : ""}`}>
-        {horas?.length > 0 && (
-          <CurvaDelDia horas={horas} rango={rango} />
-        )}
+      <div className={`flex flex-col gap-2 transition-opacity ${cambiando ? "opacity-80" : ""}`}>
+        {/* Zona de arrastre: barras + pista. touch-action pan-y deja
+            scrollear la página en vertical con el dedo, pero los arrastres
+            horizontales son nuestros. select-none evita seleccionar texto. */}
+        <div
+          ref={zona}
+          data-pista
+          onPointerDown={alApretar}
+          onPointerMove={alMover}
+          onPointerUp={alSoltar}
+          onPointerCancel={alSoltar}
+          className="flex cursor-pointer select-none flex-col gap-2"
+          style={{ touchAction: "pan-y" }}
+        >
+          {horas?.length > 0 && <CurvaDelDia horas={horas} rango={rango} />}
 
-        {/* Los dos tiradores sobre una misma pista. */}
-        <div className="relative h-6">
-          <div
-            className="absolute top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-border"
-            style={{ left: MEDIO_TIRADOR, right: MEDIO_TIRADOR }}
-          />
-          <div
-            className="absolute top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-[var(--marca-primario)]"
-            style={{
-              left: posicion(rango.desde),
-              width: `calc(${(duracion / ULTIMA_HORA) * 100}% - ${(duracion / ULTIMA_HORA) * MEDIO_TIRADOR * 2}px)`,
-            }}
-          />
-          <input
-            type="range"
-            min={0}
-            max={ULTIMA_HORA}
-            step={1}
-            value={rango.desde}
-            onChange={(e) => mover("desde", e.target.value)}
-            aria-label="Hora de salida"
-            aria-valuetext={`${rango.desde}:00`}
-            className="rango-hora absolute inset-0 z-10"
-          />
-          <input
-            type="range"
-            min={0}
-            max={ULTIMA_HORA}
-            step={1}
-            value={rango.hasta}
-            onChange={(e) => mover("hasta", e.target.value)}
-            aria-label="Hora de vuelta"
-            aria-valuetext={`${rango.hasta}:00`}
-            className="rango-hora absolute inset-0 z-20"
-          />
+          <div className="relative h-6">
+            {/* Pista gris y tramo elegido en color. */}
+            <div
+              className="absolute top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-border"
+              style={{ left: MARGEN, right: MARGEN }}
+            />
+            <div
+              className="absolute top-1/2 h-1.5 -translate-y-1/2 rounded-full bg-[var(--marca-primario)]"
+              style={{ left: posicion(rango.desde), right: `calc(100% - ${posicion(rango.hasta)})` }}
+            />
+            <Tirador
+              ref={tiradorDesde}
+              etiqueta="Hora de salida"
+              valor={rango.desde}
+              onKeyDown={(e) => alTeclear("desde", e)}
+            />
+            <Tirador
+              ref={tiradorHasta}
+              etiqueta="Hora de vuelta"
+              valor={rango.hasta}
+              onKeyDown={(e) => alTeclear("hasta", e)}
+            />
+          </div>
         </div>
 
         {/* Eje con algunas horas de referencia y la marca de "ahora". Las
@@ -179,6 +247,27 @@ export default function SelectorHorario({ desde, hasta, horas, paraManana, horaA
         </div>
       </div>
     </section>
+  );
+}
+
+// Un tirador: círculo blanco con borde de color. role="slider" y los
+// aria-value* le dicen al lector de pantalla qué es y cuánto vale.
+function Tirador({ ref, etiqueta, valor, onKeyDown }) {
+  return (
+    <div
+      ref={ref}
+      role="slider"
+      tabIndex={0}
+      aria-label={etiqueta}
+      aria-valuemin={0}
+      aria-valuemax={ULTIMA_HORA}
+      aria-valuenow={valor}
+      aria-valuetext={`${valor}:00`}
+      aria-orientation="horizontal"
+      onKeyDown={onKeyDown}
+      className="absolute top-1/2 size-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-[var(--marca-primario)] bg-background shadow-md transition-transform hover:scale-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground active:scale-110"
+      style={{ left: posicion(valor) }}
+    />
   );
 }
 
@@ -223,7 +312,7 @@ function CurvaDelDia({ horas, rango }) {
               </span>
             )}
             <div
-              className={`w-full rounded-t-md transition-colors duration-200 ${
+              className={`w-full rounded-t-md transition-colors duration-150 ${
                 dentro ? "bg-[var(--marca-primario)]" : "bg-border"
               }`}
               style={{ height: `${alto(h.temp) * 0.7}%` }}
@@ -235,9 +324,9 @@ function CurvaDelDia({ horas, rango }) {
   );
 }
 
-// Dónde cae una hora sobre la pista, en el mismo lugar que el centro del
-// tirador nativo: medio tirador + proporción del resto del ancho.
+// Dónde cae una hora sobre la pista: el margen más la proporción del resto
+// del ancho. Lo usan las barras, los tiradores y el eje, así quedan alineados.
 function posicion(hora) {
   const p = hora / ULTIMA_HORA;
-  return `calc(${MEDIO_TIRADOR}px + ${p} * (100% - ${MEDIO_TIRADOR * 2}px))`;
+  return `calc(${MARGEN}px + ${p} * (100% - ${MARGEN * 2}px))`;
 }
