@@ -80,7 +80,7 @@ export default function RootLayout({ children }) {
                 aria-label="PILCHA, ir al inicio"
                 className="flex items-center rounded focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground"
               >
-                <Logo id="logo-header" titulo="" className="h-8 w-auto" />
+                <Logo id="logo-header" className="text-2xl" />
               </Link>
               <UserMenu />
             </div>

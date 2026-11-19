@@ -49,7 +49,7 @@ export default function Footer() {
       <div className="mx-auto max-w-6xl px-4 py-10">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div className="flex flex-col gap-2 lg:col-span-1">
-            <Logo id="logo-footer" className="h-7 w-auto self-start" />
+            <Logo id="logo-footer" className="self-start text-xl" />
             <p className="max-w-xs text-sm text-muted">
               Qué ponerte hoy, armado con la ropa de tu placard y el clima de
               donde estás.
