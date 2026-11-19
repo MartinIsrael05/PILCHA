@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
@@ -7,6 +6,8 @@ import UserMenu from "@/components/auth/UserMenu";
 import { BarraNavEscritorio, BarraNavMobile } from "@/components/ui/BarraNav";
 import Footer from "@/components/ui/Footer";
 import FondoDecorativo from "@/components/ui/FondoDecorativo";
+import InlineScript from "@/components/ui/InlineScript";
+import Logo from "@/components/ui/Logo";
 
 // Pisa el tema (claro/oscuro) antes de que React pinte. Así no se ve el
 // flash blanco si el usuario guardó "oscuro". Es chico y se inyecta inline.
@@ -55,9 +56,12 @@ export default function RootLayout({ children }) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
+      <head>
+        {/* Corre mientras el navegador lee el <head>, antes de pintar nada.
+            Previene el flash del tema. Ver components/ui/InlineScript.js. */}
+        <InlineScript html={BOOT_TEMA} />
+      </head>
       <body className="flex min-h-full flex-col">
-        {/* beforeInteractive: corre antes del primer render. Previene el flash. */}
-        <Script id="boot-tema" strategy="beforeInteractive">{BOOT_TEMA}</Script>
         {/* Fondo decorativo: sol en claro, estrellas y luna en oscuro. Fixed
             detrás de todo, sin eventos de puntero. */}
         <FondoDecorativo />
@@ -73,9 +77,10 @@ export default function RootLayout({ children }) {
             <div className="mx-auto flex max-w-6xl items-center justify-between gap-x-4 px-4 py-3">
               <Link
                 href="/"
-                className="flex items-center gap-2 text-xl font-black tracking-widest focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground"
+                aria-label="PILCHA, ir al inicio"
+                className="flex items-center rounded focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground"
               >
-                PILCHA
+                <Logo id="logo-header" titulo="" className="h-8 w-auto" />
               </Link>
               <UserMenu />
             </div>
