@@ -1,7 +1,8 @@
 "use client"; // Alertdialog con focus trap y atajo de teclado.
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import Button from "@/components/ui/Button";
+import useFocusTrap from "@/hooks/useFocusTrap";
 import { eliminarPrenda } from "@/lib/actions/prendas";
 
 export default function BotonEliminar({ id, nombre }) {
@@ -11,44 +12,15 @@ export default function BotonEliminar({ id, nombre }) {
   const cancelarRef = useRef(null);
   const abridorRef = useRef(null);
 
-  // Al abrir: mover el foco al botón "Cancelar" (acción segura por defecto),
-  // atrapar el Tab dentro del diálogo y devolver el foco al botón de abrir
-  // al cerrar. Es lo que WAI-ARIA Authoring Practices pide para alertdialog.
-  useEffect(() => {
-    if (!confirmando) return;
-    cancelarRef.current?.focus();
-
-    function manejarTeclado(e) {
-      if (e.key === "Escape" && !pendiente) {
-        e.preventDefault();
-        setConfirmando(false);
-        return;
-      }
-      if (e.key !== "Tab" || !dialogRef.current) return;
-      // Elementos enfocables visibles dentro del diálogo.
-      const foco = dialogRef.current.querySelectorAll(
-        'button:not([disabled]), [href], input:not([disabled])'
-      );
-      if (foco.length === 0) return;
-      const primero = foco[0];
-      const ultimo = foco[foco.length - 1];
-      if (e.shiftKey && document.activeElement === primero) {
-        e.preventDefault();
-        ultimo.focus();
-      } else if (!e.shiftKey && document.activeElement === ultimo) {
-        e.preventDefault();
-        primero.focus();
-      }
-    }
-
-    document.addEventListener("keydown", manejarTeclado);
-    return () => document.removeEventListener("keydown", manejarTeclado);
-  }, [confirmando, pendiente]);
-
-  // Al cerrar, devolvemos el foco al botón que abrió el diálogo.
-  useEffect(() => {
-    if (!confirmando) abridorRef.current?.focus();
-  }, [confirmando]);
+  // Trampa de foco + Escape + devolución del foco al cerrar (WAI-ARIA).
+  useFocusTrap({
+    activo: confirmando,
+    dialogRef,
+    abridorRef,
+    focoInicial: cancelarRef,
+    bloquearCierre: pendiente,
+    onCerrar: () => setConfirmando(false),
+  });
 
   function eliminar() {
     startTransition(async () => {

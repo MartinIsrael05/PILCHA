@@ -1,16 +1,29 @@
-"use client"; // Pide confirmación antes de borrar.
+"use client"; // Alertdialog con focus trap.
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
 import { eliminarPaleta } from "@/lib/actions/paletas";
 import Button from "@/components/ui/Button";
+import useFocusTrap from "@/hooks/useFocusTrap";
 
 export default function EliminarPaleta({ id, nombre, esLaUnica }) {
   const [confirmando, setConfirmando] = useState(false);
   const [pendiente, startTransition] = useTransition();
+  const dialogRef = useRef(null);
+  const cancelarRef = useRef(null);
+  const abridorRef = useRef(null);
+
+  useFocusTrap({
+    activo: confirmando,
+    dialogRef,
+    abridorRef,
+    focoInicial: cancelarRef,
+    bloquearCierre: pendiente,
+    onCerrar: () => setConfirmando(false),
+  });
 
   if (!confirmando) {
     return (
-      <Button variante="secundario" onClick={() => setConfirmando(true)}>
+      <Button ref={abridorRef} variante="secundario" onClick={() => setConfirmando(true)}>
         Eliminar paleta
       </Button>
     );
@@ -18,7 +31,9 @@ export default function EliminarPaleta({ id, nombre, esLaUnica }) {
 
   return (
     <div
+      ref={dialogRef}
       role="alertdialog"
+      aria-modal="true"
       aria-labelledby="borrar-paleta"
       className="flex flex-col gap-3 rounded-2xl border border-red-500 p-4"
     >
@@ -36,6 +51,7 @@ export default function EliminarPaleta({ id, nombre, esLaUnica }) {
           {pendiente ? "Eliminando…" : "Sí, eliminar"}
         </Button>
         <Button
+          ref={cancelarRef}
           variante="secundario"
           onClick={() => setConfirmando(false)}
           disabled={pendiente}

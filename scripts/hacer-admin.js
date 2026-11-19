@@ -31,9 +31,10 @@ async function main() {
   });
 
   const usuario = await getAuth(app).getUserByEmail(email);
+  // Pasar null borra los claims: evita dejar { admin: false } en el token.
   await getAuth(app).setCustomUserClaims(
     usuario.uid,
-    quitar ? { admin: false } : { admin: true },
+    quitar ? null : { admin: true },
   );
   await getFirestore(app)
     .collection("users")
