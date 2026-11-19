@@ -117,7 +117,7 @@ export default function PerfilForm({ perfil }) {
           {Object.entries(SENSIBILIDADES).map(([clave, s]) => (
             <label
               key={clave}
-              className="flex cursor-pointer flex-col gap-0.5 rounded-xl border border-border p-3 has-checked:border-foreground has-checked:bg-border/40 has-focus-visible:outline-2 has-focus-visible:outline-foreground"
+              className="flex cursor-pointer flex-col gap-0.5 rounded-xl border border-border bg-background p-3 has-checked:border-foreground has-checked:bg-border/40 has-focus-visible:outline-2 has-focus-visible:outline-foreground"
             >
               <span className="flex items-center gap-2 font-medium">
                 <input

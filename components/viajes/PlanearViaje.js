@@ -19,7 +19,7 @@ export default function PlanearViaje({ inicial, minFecha, maxFecha }) {
     <form
       method="get"
       action="/viajes"
-      className="flex flex-col gap-4 rounded-2xl border border-border p-5"
+      className="flex flex-col gap-4 rounded-2xl border border-border bg-background p-5"
     >
       <fieldset className="flex flex-col gap-2">
         <legend className="mb-1.5 text-sm font-medium">¿A dónde vas?</legend>

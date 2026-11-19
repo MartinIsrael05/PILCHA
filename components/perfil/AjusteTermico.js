@@ -19,7 +19,7 @@ export default function AjusteTermico({ ajuste }) {
   return (
     <section
       aria-labelledby="titulo-ajuste"
-      className="flex max-w-xl flex-col gap-3 rounded-2xl border border-border p-5"
+      className="flex max-w-xl flex-col gap-3 rounded-2xl border border-border bg-background p-5"
     >
       <h2 id="titulo-ajuste" className="font-semibold">
         Lo que aprendimos de vos

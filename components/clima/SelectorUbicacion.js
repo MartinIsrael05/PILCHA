@@ -79,7 +79,7 @@ export default function SelectorUbicacion({ ubicacionActual }) {
   }
 
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-border p-5">
+    <div className="flex flex-col gap-4 rounded-2xl border border-border bg-background p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted">
           {ubicacionActual ? (

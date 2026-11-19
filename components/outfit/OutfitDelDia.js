@@ -12,6 +12,7 @@ import { getPaletaDelDia } from "@/lib/data/paletas";
 import { variablesDeTema } from "@/lib/paletas";
 import LogoDelDia from "@/components/ui/LogoDelDia";
 import ClimaResumen from "@/components/clima/ClimaResumen";
+import ClimaManana from "@/components/clima/ClimaManana";
 import OutfitSugerido from "@/components/outfit/OutfitSugerido";
 import RecomendacionGenerica from "@/components/outfit/RecomendacionGenerica";
 import UsarOutfit from "@/components/outfit/UsarOutfit";
@@ -51,7 +52,7 @@ export default async function OutfitDelDia({ user, ubicacion, desde, hasta }) {
         {/* El isotipo del logo toma el color de la paleta del día. */}
         <LogoDelDia colores={paleta?.colores} />
         <RecomendacionGenerica recomendacion={recomendacion} logueado conInvitacion={false} />
-        <p className="rounded-2xl border border-dashed border-border p-5 text-muted">
+        <p className="rounded-2xl border border-dashed border-border bg-background p-5 text-muted">
           Todavía no cargaste ropa.{" "}
           <Link href="/placard/nueva" className="font-semibold text-foreground underline">
             Cargá tu primera prenda
@@ -63,6 +64,13 @@ export default async function OutfitDelDia({ user, ubicacion, desde, hasta }) {
           actual={pronostico.current}
           desde={desde}
           hasta={hasta}
+        />
+        <ClimaManana
+          pronostico={pronostico}
+          clima={clima}
+          desde={desde}
+          hasta={hasta}
+          perfil={perfil}
         />
       </div>
     );
@@ -79,7 +87,7 @@ export default async function OutfitDelDia({ user, ubicacion, desde, hasta }) {
     >
       {/* El isotipo del logo toma el color de la paleta del día. */}
       <LogoDelDia colores={paleta?.colores} />
-      <div className="lg:col-span-4">
+      <div className="flex flex-col gap-5 lg:col-span-4">
         <OutfitSugerido recomendacion={recomendacion} paleta={paleta}>
           {prendaIds.length > 0 && (
             <UsarOutfit
@@ -90,6 +98,14 @@ export default async function OutfitDelDia({ user, ubicacion, desde, hasta }) {
             />
           )}
         </OutfitSugerido>
+        {/* Debajo del outfit de hoy: qué cambia mañana. */}
+        <ClimaManana
+          pronostico={pronostico}
+          clima={clima}
+          desde={desde}
+          hasta={hasta}
+          perfil={perfil}
+        />
       </div>
       {/* sticky top: el resumen del clima queda a la vista mientras scrolleás
           hora por hora. En mobile el sticky no molesta porque es una columna. */}
@@ -107,7 +123,7 @@ export default async function OutfitDelDia({ user, ubicacion, desde, hasta }) {
 
 function Aviso({ children }) {
   return (
-    <p role="status" className="rounded-2xl border border-border p-5 text-muted">
+    <p role="status" className="rounded-2xl border border-border bg-background p-5 text-muted">
       {children}
     </p>
   );

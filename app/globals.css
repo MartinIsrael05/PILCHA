@@ -74,6 +74,61 @@
   }
 }
 
+/* Tiradores del selector de horario (components/clima/SelectorHorario.js).
+   Son dos <input type="range"> superpuestos: el input es transparente y no
+   recibe el mouse; solo el tirador sí, así se pueden agarrar los dos. La
+   pista de color la dibuja el componente. Miden 20 px (MEDIO_TIRADOR = 10). */
+.rango-hora {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  pointer-events: none;
+  margin: 0;
+}
+.rango-hora::-webkit-slider-runnable-track {
+  background: transparent;
+  height: 1.5rem;
+}
+.rango-hora::-moz-range-track {
+  background: transparent;
+}
+.rango-hora::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  pointer-events: auto;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px; /* centrado en la pista de 24 px */
+  border-radius: 9999px;
+  background: var(--background);
+  border: 3px solid var(--marca-primario);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.25);
+  cursor: grab;
+}
+.rango-hora::-moz-range-thumb {
+  pointer-events: auto;
+  width: 14px; /* en Firefox el borde se suma al ancho: 14 + 2 * 3 = 20 px */
+  height: 14px;
+  border-radius: 9999px;
+  background: var(--background);
+  border: 3px solid var(--marca-primario);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.25);
+  cursor: grab;
+}
+.rango-hora:active::-webkit-slider-thumb {
+  cursor: grabbing;
+}
+.rango-hora:focus-visible {
+  outline: none;
+}
+.rango-hora:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--foreground);
+  outline-offset: 2px;
+}
+.rango-hora:focus-visible::-moz-range-thumb {
+  outline: 2px solid var(--foreground);
+  outline-offset: 2px;
+}
+
 /* Percha balanceándose para los estados de carga. Gira desde la punta del
    gancho, como si estuviera colgada. */
 @keyframes percha-balanceo {

@@ -73,7 +73,7 @@ export default async function ViajesPage({ searchParams }) {
               <li key={v.id}>
                 <Link
                   href={`/viajes/${v.id}`}
-                  className="flex flex-col gap-1 rounded-2xl border border-border p-4 hover:border-foreground focus-visible:outline-2 focus-visible:outline-foreground"
+                  className="flex flex-col gap-1 rounded-2xl border border-border bg-background p-4 hover:border-foreground focus-visible:outline-2 focus-visible:outline-foreground"
                 >
                   <span className="font-semibold">{v.ciudad.nombre}</span>
                   <span className="text-sm text-muted">

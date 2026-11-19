@@ -11,7 +11,7 @@ export default function PaletaDelDia({ paleta }) {
   return (
     <section
       aria-labelledby="titulo-paleta-dia"
-      className="flex flex-col gap-3 rounded-2xl border border-border p-5"
+      className="flex flex-col gap-3 rounded-2xl border border-border bg-background p-5"
     >
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div>

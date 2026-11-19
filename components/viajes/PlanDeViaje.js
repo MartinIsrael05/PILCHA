@@ -11,7 +11,7 @@ export default async function PlanDeViaje({ user, ubicacion, desde, hasta }) {
     return (
       <p
         role="alert"
-        className="rounded-2xl border border-border p-5 text-muted"
+        className="rounded-2xl border border-border bg-background p-5 text-muted"
       >
         {plan.error}
       </p>

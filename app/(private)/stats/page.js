@@ -132,7 +132,7 @@ export default async function StatsPage() {
 
       <section
         aria-labelledby="titulo-nunca"
-        className="flex flex-col gap-3 rounded-2xl border border-border p-5"
+        className="flex flex-col gap-3 rounded-2xl border border-border bg-background p-5"
       >
         <h2 id="titulo-nunca" className="text-lg font-semibold">
           Nunca las usaste
@@ -154,11 +154,11 @@ export default async function StatsPage() {
                 <li key={p.id}>
                   <Link
                     href={`/placard/${p.id}`}
-                    className="flex items-center gap-2 rounded-full border border-border px-3 py-1 hover:border-foreground"
+                    className="flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1 hover:border-foreground"
                   >
                     <span
                       aria-hidden="true"
-                      className="size-3 rounded-full border border-border"
+                      className="size-3 rounded-full border border-border bg-background"
                       style={{ backgroundColor: p.color.hex }}
                     />
                     {p.nombre}
@@ -179,7 +179,7 @@ function veces(n) {
 
 function Numero({ titulo, valor }) {
   return (
-    <div className="flex flex-col gap-1 rounded-2xl border border-border p-4">
+    <div className="flex flex-col gap-1 rounded-2xl border border-border bg-background p-4">
       <dt className="text-sm text-muted">{titulo}</dt>
       <dd className="text-3xl font-black tracking-tight">{valor}</dd>
     </div>

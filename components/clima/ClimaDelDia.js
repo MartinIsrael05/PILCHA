@@ -50,7 +50,7 @@ export default async function ClimaDelDia({ ubicacion, desde, hasta, perfil, log
 
 function Aviso({ children }) {
   return (
-    <p role="status" className="rounded-2xl border border-border p-5 text-muted">
+    <p role="status" className="rounded-2xl border border-border bg-background p-5 text-muted">
       {children}
     </p>
   );
