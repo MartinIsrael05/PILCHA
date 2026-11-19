@@ -162,3 +162,44 @@ test("si una categoría no tiene candidatas, queda el texto genérico", () => {
   assert.equal(inferior.prenda, null);
   assert.equal(inferior.texto, "short o pantalón liviano");
 });
+
+test("de noche no se alerta UV aunque el máximo del rango sea alto", () => {
+  // Caso real: consulta de noche, la ventana del perfil cubre el día y el
+  // máximo UV queda en 9, pero clima.esDeDia=false.
+  const r = recomendar({ clima: clima({ sensacion: 20, uv: 9, esDeDia: false }) });
+  assert.ok(!tipos(r).includes("uv"), "no debería haber alerta de UV de noche");
+});
+
+test("nieve: alerta propia y prefiere calzado abrigado + impermeable", () => {
+  const prendas = [
+    prenda("zap-liviana", "calzado", 1, "#ffffff", { impermeable: false }),
+    prenda("botas", "calzado", 4, "#333333", { impermeable: true }),
+  ];
+  const r = recomendar({
+    clima: clima({ tempMin: -2, tempMax: 2, sensacion: 0, codigo: 73 }), // nieve moderada
+    prendas,
+  });
+  assert.ok(tipos(r).includes("nieve"));
+  // No aparece la alerta "lluvia" aunque esNieve también cuente como húmedo.
+  assert.ok(!tipos(r).includes("lluvia"));
+  const calzado = r.outfit.find((x) => x.categoria === "calzado");
+  assert.equal(calzado.prenda.id, "botas");
+});
+
+test("tormenta: alerta propia y mensaje de evitar salir", () => {
+  const r = recomendar({ clima: clima({ sensacion: 18, codigo: 95, lluviaProb: 90 }) });
+  assert.ok(tipos(r).includes("tormenta"));
+  assert.ok(!tipos(r).includes("lluvia"));
+  assert.ok(r.textoGenerico.includes("tormenta"));
+});
+
+test("niebla: alerta propia", () => {
+  const r = recomendar({ clima: clima({ codigo: 45 }) });
+  assert.ok(tipos(r).includes("niebla"));
+});
+
+test("lluvia por código aunque la probabilidad sea baja", () => {
+  // Chaparrón (código 80) con 20% de prob. Todavía queremos avisar.
+  const r = recomendar({ clima: clima({ codigo: 80, lluviaProb: 20, sensacion: 15 }) });
+  assert.ok(tipos(r).includes("lluvia"));
+});

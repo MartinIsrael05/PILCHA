@@ -1,90 +1,276 @@
-import { Suspense } from "react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
-import { leerHorario, leerUbicacion } from "@/lib/ubicacion";
-import SelectorUbicacion from "@/components/clima/SelectorUbicacion";
-import SelectorHorario from "@/components/clima/SelectorHorario";
-import ClimaDelDia from "@/components/clima/ClimaDelDia";
-import ClimaSkeleton from "@/components/clima/ClimaSkeleton";
+import { CLIMAS } from "@/lib/paletas";
+import Reveal from "@/components/landing/Reveal";
+import DemoManiqui from "@/components/landing/DemoManiqui";
+
+// Ocultamos ESLint warning: Reveal se importa pero solo se usa en las
+// secciones debajo del fold. (Si saco el import, las usa el resto.)
 
 export const metadata = {
   // absolute evita que el template del layout agregue " | PILCHA" otra vez
   title: { absolute: "PILCHA | Qué ponerte hoy según el clima" },
+  description:
+    "Armá el outfit del día con la ropa de tu placard y el clima de donde estás. Paletas por clima, historial que aprende y modo viaje.",
 };
 
-export default async function HomePage({ searchParams }) {
-  const params = await searchParams;
+// Landing: la portada es una pantalla de arribo con animaciones y CTAs.
+// A quien ya está logueado le mandamos directo a /hoy: la landing es para
+// los que todavía no entraron y queremos invitar.
+export default async function HomePage() {
   const user = await getCurrentUser();
-
-  // Prioridad: la ubicación de la URL; si no hay, la ciudad del perfil.
-  const ubicacion = leerUbicacion(params) ?? user?.ciudad ?? null;
-  const horarioPerfil = user
-    ? { desde: user.horaSalida, hasta: user.horaVuelta }
-    : undefined;
-  const { desde, hasta } = leerHorario(params, horarioPerfil);
-  // Solo lo que el motor necesita para ajustar la temperatura a la persona.
-  const perfil = user
-    ? { sensibilidad: user.sensibilidad, ajusteTermico: user.ajusteTermico }
-    : null;
+  if (user) redirect("/hoy");
 
   return (
-    <div className="flex flex-col gap-12">
-      <section className="flex flex-col gap-5 pt-4 sm:pt-6">
-        <p className="text-xs font-semibold uppercase tracking-widest text-muted">
-          Clima + placard + paletas
-        </p>
-        <h1 className="text-5xl font-black tracking-tight leading-[1.05] sm:text-7xl">
-          ¿Qué me pongo hoy?
-        </h1>
-        <p className="max-w-2xl text-lg text-muted sm:text-xl">
-          PILCHA mira el pronóstico entre la hora en que salís y la hora en que
-          volvés, y te arma el outfit del día con la ropa de tu propio placard.
-        </p>
-        {!user && (
+    <div className="flex flex-col gap-24">
+      <Hero />
+      <ComoFunciona />
+      <ParaCadaClima />
+      <Beneficios />
+      <CTAFinal />
+    </div>
+  );
+}
+
+function Hero() {
+  return (
+    <section className="relative isolate -mx-4 overflow-hidden px-4 pb-16 pt-10 sm:pt-16">
+      {/* Fondo decorativo: gradiente animado en una capa suave + puntos. */}
+      <div
+        aria-hidden="true"
+        className="pilcha-gradient absolute inset-0 -z-10 opacity-20"
+      />
+      <div aria-hidden="true" className="pilcha-dots absolute inset-0 -z-10" />
+
+      {/* El hero está sobre el fold: no lo envolvemos en Reveal porque ya
+          está en viewport y mostrar fade cada carga se siente inconsistente. */}
+      <div className="mx-auto grid max-w-5xl gap-10 lg:grid-cols-[1.4fr_1fr] lg:items-center">
+        <div className="flex flex-col gap-6">
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted">
+            Clima · Placard · Paletas
+          </p>
+          <h1 className="text-5xl font-black leading-[1.02] tracking-tight sm:text-7xl">
+            ¿Qué me pongo
+            <br />
+            <span className="pilcha-gradient-text">hoy?</span>
+          </h1>
+          <p className="max-w-xl text-lg text-muted sm:text-xl">
+            PILCHA mira el pronóstico entre la hora en que salís y la que
+            volvés, y te arma el outfit del día con la ropa de tu placard.
+            Aprende de vos y rota lo que ya tenés.
+          </p>
           <div className="flex flex-wrap items-center gap-3 pt-2">
             <Link
               href="/registro"
-              className="rounded-full bg-foreground px-6 py-3 font-medium text-background hover:opacity-90"
+              className="rounded-full bg-foreground px-6 py-3 font-medium text-background shadow-sm transition hover:opacity-90 hover:shadow-md"
             >
               Crear cuenta gratis
             </Link>
             <Link
-              href="/paletas"
+              href="/login"
               className="rounded-full border border-border px-6 py-3 font-medium hover:bg-border/40"
             >
-              Ver paletas
+              Ya tengo cuenta
             </Link>
           </div>
-        )}
-      </section>
+          <p className="text-sm text-muted">
+            Sin tarjeta. Tus datos quedan en tu cuenta.
+          </p>
+        </div>
 
-      <section className="flex flex-col gap-4" aria-labelledby="titulo-clima">
-        <h2 id="titulo-clima" className="text-xl font-bold border-b border-border pb-2">
-          El clima de tu día
+        <div className="flex justify-center lg:justify-end">
+          <DemoManiqui />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const PASOS = [
+  {
+    numero: "01",
+    titulo: "Cargá tu ropa",
+    descripcion:
+      "Alta rápida: nombre, categoría, color (sugerido por el picker) y nivel de abrigo. La foto es opcional.",
+  },
+  {
+    numero: "02",
+    titulo: "PILCHA lee el clima",
+    descripcion:
+      "Tomamos el pronóstico de Open-Meteo para el horario en que vas a estar afuera.",
+  },
+  {
+    numero: "03",
+    titulo: "Tu outfit, armado",
+    descripcion:
+      "El motor combina tu ropa con la paleta del día y rota prendas poco usadas. Calificás cómo te fue y aprende.",
+  },
+];
+
+function ComoFunciona() {
+  return (
+    <section
+      aria-labelledby="como-funciona"
+      className="mx-auto flex max-w-5xl flex-col gap-10"
+    >
+      <Reveal className="flex flex-col gap-2">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted">
+          Cómo funciona
+        </p>
+        <h2
+          id="como-funciona"
+          className="text-3xl font-black tracking-tight sm:text-4xl"
+        >
+          Tres pasos. Sin obsesión.
         </h2>
+      </Reveal>
 
-        <SelectorUbicacion ubicacionActual={ubicacion} />
+      <ol className="grid gap-5 sm:grid-cols-3">
+        {PASOS.map((p, i) => (
+          <Reveal key={p.numero} as="li" delay={i * 120} className="flex flex-col gap-3 rounded-2xl border border-border bg-background p-5 hover-elevar">
+            <span className="font-mono text-sm text-muted">{p.numero}</span>
+            <h3 className="text-xl font-bold">{p.titulo}</h3>
+            <p className="text-sm text-muted">{p.descripcion}</p>
+          </Reveal>
+        ))}
+      </ol>
+    </section>
+  );
+}
 
-        {ubicacion && (
-          <>
-            <SelectorHorario desde={desde} hasta={hasta} />
-            {/* key: al cambiar la ubicación o el horario se vuelve a mostrar
-                el skeleton mientras llega el nuevo pronóstico */}
-            <Suspense
-              key={`${ubicacion.lat},${ubicacion.lon},${desde},${hasta}`}
-              fallback={<ClimaSkeleton />}
-            >
-              <ClimaDelDia
-                ubicacion={ubicacion}
-                desde={desde}
-                hasta={hasta}
-                perfil={perfil}
-                logueado={Boolean(user)}
-              />
-            </Suspense>
-          </>
-        )}
-      </section>
-    </div>
+function ParaCadaClima() {
+  return (
+    <section
+      aria-labelledby="para-cada-clima"
+      className="mx-auto flex max-w-5xl flex-col gap-10"
+    >
+      <Reveal className="flex max-w-2xl flex-col gap-2">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted">
+          Para cada clima
+        </p>
+        <h2
+          id="para-cada-clima"
+          className="text-3xl font-black tracking-tight sm:text-4xl"
+        >
+          Sol, lluvia, frío o noche. Sabe qué sugerir.
+        </h2>
+        <p className="text-base text-muted">
+          Cada condición tiene su propia paleta y su propia lógica: los
+          impermeables se priorizan con lluvia, de noche no te pedimos
+          protector solar, con nieve suben los grados de abrigo del calzado.
+        </p>
+      </Reveal>
+
+      <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {Object.entries(CLIMAS).map(([clave, c], i) => (
+          <Reveal
+            key={clave}
+            as="li"
+            delay={i * 80}
+            className="flex items-start gap-3 rounded-2xl border border-border bg-background p-4 hover-elevar"
+          >
+            <span aria-hidden="true" className="text-3xl">
+              {c.icono}
+            </span>
+            <div>
+              <p className="font-semibold">{c.nombre}</p>
+              <p className="text-sm text-muted first-letter:uppercase">
+                Outfit {c.frase}.
+              </p>
+            </div>
+          </Reveal>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+const BENEFICIOS = [
+  {
+    titulo: "Rota tu placard",
+    descripcion:
+      "Prioriza las prendas que menos usaste: tu ropa no se duerme en el fondo del cajón.",
+  },
+  {
+    titulo: "Aprende de vos",
+    descripcion:
+      "Decís frío, bien o calor; la próxima recomendación corrige cuánto te abrigamos.",
+  },
+  {
+    titulo: "Modo viaje",
+    descripcion:
+      "Ciudad y fechas: te armamos la valija mínima para esos días, sin llevar de más.",
+  },
+  {
+    titulo: "Paletas por clima",
+    descripcion:
+      "Un día de lluvia no pide los mismos colores que una tarde de verano.",
+  },
+];
+
+function Beneficios() {
+  return (
+    <section
+      aria-labelledby="beneficios"
+      className="mx-auto flex max-w-5xl flex-col gap-10"
+    >
+      <Reveal className="flex max-w-2xl flex-col gap-2">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted">
+          Más que un pronóstico
+        </p>
+        <h2 id="beneficios" className="text-3xl font-black tracking-tight sm:text-4xl">
+          Hecho para que decidas rápido.
+        </h2>
+      </Reveal>
+
+      <ul className="grid gap-4 sm:grid-cols-2">
+        {BENEFICIOS.map((b, i) => (
+          <Reveal
+            key={b.titulo}
+            as="li"
+            delay={i * 100}
+            className="flex flex-col gap-2 rounded-2xl border border-border bg-background p-6 hover-elevar"
+          >
+            <h3 className="text-xl font-bold">{b.titulo}</h3>
+            <p className="text-sm text-muted">{b.descripcion}</p>
+          </Reveal>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function CTAFinal() {
+  return (
+    <Reveal
+      as="section"
+      className="relative isolate mx-auto flex w-full max-w-5xl flex-col items-center gap-6 overflow-hidden rounded-3xl border border-border p-10 text-center sm:p-16"
+    >
+      <div
+        aria-hidden="true"
+        className="pilcha-gradient absolute inset-0 -z-10 opacity-15"
+      />
+      <h2 className="text-3xl font-black tracking-tight sm:text-5xl">
+        Dejá que el clima elija.
+      </h2>
+      <p className="max-w-xl text-lg text-muted">
+        Cargá tu ropa una vez y despertate sabiendo qué ponerte.
+      </p>
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        <Link
+          href="/registro"
+          className="rounded-full bg-foreground px-7 py-3.5 text-lg font-medium text-background shadow-sm transition hover:opacity-90 hover:shadow-md"
+        >
+          Empezar gratis
+        </Link>
+        <Link
+          href="/paletas"
+          className="rounded-full border border-border px-7 py-3.5 text-lg font-medium hover:bg-border/40"
+        >
+          Explorar paletas
+        </Link>
+      </div>
+    </Reveal>
   );
 }
