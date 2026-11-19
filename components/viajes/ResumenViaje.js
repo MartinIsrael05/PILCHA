@@ -13,12 +13,15 @@ export default function ResumenViaje({ viaje, prendasPorId }) {
   const totalDias = contarDias(desde, hasta);
 
   // La valija se arma a partir de los días, agrupada por categoría.
+  // Prendas sin categoría (eliminadas del placard) van al final: ORDEN.indexOf
+  // sin match devuelve -1, lo pasamos a Infinity para que no quede primero.
+  const posicion = (p) => {
+    const i = ORDEN.indexOf(p?.categoria);
+    return i === -1 ? Infinity : i;
+  };
   const valija = valijaDesdeDias(dias)
     .map((v) => ({ ...v, prenda: prendasPorId.get(v.prendaId) ?? null }))
-    .sort(
-      (a, b) =>
-        ORDEN.indexOf(a.prenda?.categoria) - ORDEN.indexOf(b.prenda?.categoria),
-    );
+    .sort((a, b) => posicion(a.prenda) - posicion(b.prenda));
 
   return (
     <div className="flex flex-col gap-6">
