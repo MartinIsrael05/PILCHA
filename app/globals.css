@@ -74,6 +74,36 @@
   }
 }
 
+/* Logo (components/ui/Logo.js). La percha toma sus colores de estas
+   variables; si nadie las define, usa los colores de marca. LogoDelDia
+   escribe --logo-gancho con el color de la paleta del día. */
+.logo-calido-1 {
+  stop-color: var(--logo-calido-1, var(--marca-primario));
+}
+.logo-calido-2 {
+  stop-color: var(--logo-calido-2, var(--marca-secundario));
+}
+.logo-gancho {
+  stroke: var(--logo-gancho, var(--marca-terciario));
+  transition: stroke 0.6s ease;
+}
+
+/* Percha balanceándose para los estados de carga. Gira desde la punta del
+   gancho, como si estuviera colgada. */
+@keyframes percha-balanceo {
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(8deg); }
+}
+.percha-balanceo {
+  transform-origin: 50% 0;
+  animation: percha-balanceo 1.4s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .percha-balanceo {
+    animation: none;
+  }
+}
+
 /* Animaciones de la landing (ver components/landing/). */
 
 /* Entrada por scroll: parte invisible y levemente abajo, aparece al activar. */
