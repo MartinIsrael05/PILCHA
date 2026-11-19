@@ -298,11 +298,13 @@ async function cargarHistorial(db, userRef, refsPorNombre) {
 
 async function cargarPaletas(db) {
   const batch = db.batch();
+  // Como cada paleta del seed usa el nombre del clima como id, al reinsertar
+  // queda una por clima y marcada como activa.
   PALETAS.forEach((paleta) => {
-    batch.set(db.collection("paletas").doc(paleta.clima), paleta);
+    batch.set(db.collection("paletas").doc(paleta.clima), { ...paleta, activa: true });
   });
   await batch.commit();
-  console.log(`${PALETAS.length} paletas cargadas.`);
+  console.log(`${PALETAS.length} paletas cargadas (todas marcadas como activas).`);
 }
 
 main().catch((error) => {
