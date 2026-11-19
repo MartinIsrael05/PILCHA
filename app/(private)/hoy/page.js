@@ -5,7 +5,6 @@ import SelectorUbicacion from "@/components/clima/SelectorUbicacion";
 import SelectorHorario from "@/components/clima/SelectorHorario";
 import ClimaSkeleton from "@/components/clima/ClimaSkeleton";
 import OutfitDelDia from "@/components/outfit/OutfitDelDia";
-import PageHeader from "@/components/ui/PageHeader";
 
 export const metadata = {
   title: "Hoy",
@@ -25,17 +24,27 @@ export default async function HoyPage({ searchParams }) {
 
   const saludo = user.nombre ? `Hola, ${user.nombre.split(" ")[0]}` : "Hola";
 
+  // Header compacto en una sola fila: saludo a la izquierda, selectores a
+  // la derecha. Sin descripción larga: la ocupa el outfit abajo.
   return (
-    <section className="flex flex-col gap-8">
-      <PageHeader
-        titulo={saludo}
-        descripcion="Te armamos el outfit del día con tu placard y el clima."
-      />
+    <section className="flex flex-col gap-6">
+      <header className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-4">
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-widest text-muted">
+            Hoy
+          </p>
+          <h1 className="text-3xl font-black tracking-tight sm:text-4xl">
+            {saludo}
+          </h1>
+        </div>
+        {ubicacion && (
+          <div className="flex shrink-0 items-center">
+            <SelectorHorario desde={desde} hasta={hasta} />
+          </div>
+        )}
+      </header>
 
-      <div className="flex flex-col gap-3">
-        <SelectorUbicacion ubicacionActual={ubicacion} />
-        {ubicacion && <SelectorHorario desde={desde} hasta={hasta} />}
-      </div>
+      <SelectorUbicacion ubicacionActual={ubicacion} />
 
       {ubicacion && (
         <Suspense
