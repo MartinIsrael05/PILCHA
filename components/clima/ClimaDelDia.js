@@ -4,7 +4,6 @@ import { getPronostico, resumirVentana, condicionPaleta } from "@/lib/clima";
 import { recomendar } from "@/lib/recomendar";
 import { getPaletaDelDia } from "@/lib/data/paletas";
 import { variablesDeTema } from "@/lib/paletas";
-import { colorAcento } from "@/lib/colores";
 import LogoDelDia from "@/components/ui/LogoDelDia";
 import ClimaResumen from "@/components/clima/ClimaResumen";
 import RecomendacionGenerica from "@/components/outfit/RecomendacionGenerica";
@@ -35,8 +34,8 @@ export default async function ClimaDelDia({ ubicacion, desde, hasta, perfil, log
   return (
     // Igual que en /hoy, la interfaz toma colores de la paleta del día.
     <div className="flex flex-col gap-4" style={variablesDeTema(paleta)}>
-      {/* El gancho del logo toma el color de la paleta del día. */}
-      <LogoDelDia color={colorAcento(paleta?.colores)} />
+      {/* El isotipo del logo toma el color de la paleta del día. */}
+      <LogoDelDia colores={paleta?.colores} />
       <RecomendacionGenerica recomendacion={recomendacion} logueado={logueado} />
       <PaletaDelDia paleta={paleta} />
       <ClimaResumen

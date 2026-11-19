@@ -1,52 +1,47 @@
-// Logo de PILCHA en SVG. Server Component: no tiene estado ni eventos.
+// Logo de PILCHA. Server Component: no tiene estado ni eventos.
 //
-// variante="completo": percha + palabra (header, footer).
-// variante="isotipo": solo la percha (íconos, carga).
+// <Logo /> muestra el isotipo + la palabra. El tamaño se controla con el
+// font-size (por ejemplo className="text-2xl"): el isotipo mide 1.25em, así
+// que siempre acompaña a la palabra.
 //
-// La palabra usa currentColor, así toma el color del texto y anda sola en
-// modo claro y oscuro. Los colores de la percha salen de variables CSS
-// (--logo-*) con los colores de marca como valor por defecto.
-import {
-  CUERPO,
-  GANCHO,
-  GROSOR,
-  LETRAS,
-  VIEWBOX_COMPLETO,
-  VIEWBOX_ISOTIPO,
-} from "@/lib/logo";
+// La palabra es texto real en Geist Black con tracking-tight, igual que los
+// títulos de las páginas. Toma el color del texto, así anda en claro y oscuro.
+import { COLORES, GROSOR_PERCHA, PERCHA } from "@/lib/logo";
 
-export default function Logo({
-  variante = "completo",
+// Cuadrado redondeado en degradé con la percha blanca. Los colores salen de
+// variables CSS (--logo-*) con los de marca como valor por defecto: en /hoy
+// LogoDelDia las pisa con el color de la paleta del día. Van inline (y no en
+// globals.css) para que el logo se vea bien aunque falte la hoja de estilos.
+export function Isotipo({ id = "logo", className = "" }) {
   // El degradé necesita un id único en la página: el header y el footer
   // muestran el logo a la vez, así que cada uno pasa el suyo.
-  id = "logo",
-  titulo = "PILCHA",
-  className = "",
-}) {
-  const completo = variante === "completo";
   const idDegrade = `${id}-degrade`;
-
   return (
-    <svg
-      viewBox={completo ? VIEWBOX_COMPLETO : VIEWBOX_ISOTIPO}
-      className={className}
-      role={titulo ? "img" : undefined}
-      aria-label={titulo || undefined}
-      aria-hidden={titulo ? undefined : true}
-      fill="none"
-      strokeWidth={GROSOR}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
+    <svg viewBox="0 0 32 32" className={className} aria-hidden="true">
       <defs>
-        <linearGradient id={idDegrade} x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" className="logo-calido-1" />
-          <stop offset="1" className="logo-calido-2" />
+        <linearGradient id={idDegrade} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" style={{ stopColor: `var(--logo-fondo-1, ${COLORES.fondo1})` }} />
+          <stop offset="1" style={{ stopColor: `var(--logo-fondo-2, ${COLORES.fondo2})` }} />
         </linearGradient>
       </defs>
-      <path d={CUERPO} stroke={`url(#${idDegrade})`} />
-      <path d={GANCHO} className="logo-gancho" />
-      {completo && <path d={LETRAS} stroke="currentColor" />}
+      <rect width="32" height="32" rx="9" fill={`url(#${idDegrade})`} />
+      <path
+        d={PERCHA}
+        fill="none"
+        style={{ stroke: `var(--logo-trazo, ${COLORES.trazo})` }}
+        strokeWidth={GROSOR_PERCHA}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
+  );
+}
+
+export default function Logo({ id, className = "" }) {
+  return (
+    <span className={`inline-flex items-center gap-[0.4em] leading-none ${className}`}>
+      <Isotipo id={id} className="h-[1.25em] w-[1.25em] shrink-0" />
+      <span className="font-black tracking-tight">PILCHA</span>
+    </span>
   );
 }

@@ -10,7 +10,6 @@ import { recomendar } from "@/lib/recomendar";
 import { listarPrendas } from "@/lib/data/prendas";
 import { getPaletaDelDia } from "@/lib/data/paletas";
 import { variablesDeTema } from "@/lib/paletas";
-import { colorAcento } from "@/lib/colores";
 import LogoDelDia from "@/components/ui/LogoDelDia";
 import ClimaResumen from "@/components/clima/ClimaResumen";
 import OutfitSugerido from "@/components/outfit/OutfitSugerido";
@@ -49,8 +48,8 @@ export default async function OutfitDelDia({ user, ubicacion, desde, hasta }) {
   if (prendas.length === 0) {
     return (
       <div className="flex flex-col gap-4" style={variablesDeTema(paleta)}>
-        {/* El gancho del logo toma el color de la paleta del día. */}
-        <LogoDelDia color={colorAcento(paleta?.colores)} />
+        {/* El isotipo del logo toma el color de la paleta del día. */}
+        <LogoDelDia colores={paleta?.colores} />
         <RecomendacionGenerica recomendacion={recomendacion} logueado conInvitacion={false} />
         <p className="rounded-2xl border border-dashed border-border p-5 text-muted">
           Todavía no cargaste ropa.{" "}
@@ -78,8 +77,8 @@ export default async function OutfitDelDia({ user, ubicacion, desde, hasta }) {
       className="grid gap-5 lg:grid-cols-7 lg:items-start"
       style={variablesDeTema(paleta)}
     >
-      {/* El gancho del logo toma el color de la paleta del día. */}
-      <LogoDelDia color={colorAcento(paleta?.colores)} />
+      {/* El isotipo del logo toma el color de la paleta del día. */}
+      <LogoDelDia colores={paleta?.colores} />
       <div className="lg:col-span-4">
         <OutfitSugerido recomendacion={recomendacion} paleta={paleta}>
           {prendaIds.length > 0 && (

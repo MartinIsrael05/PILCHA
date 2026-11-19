@@ -1,18 +1,29 @@
-"use client"; // Escribe una variable CSS en <html> con un efecto.
+"use client"; // Escribe variables CSS en <html> con un efecto.
 
-// Pinta el gancho del logo con el color de la paleta del día. El logo vive
+// Pinta el isotipo del logo con el color de la paleta del día. El logo vive
 // en el header (layout raíz), fuera de la página, así que no le llegan las
-// variables que pone cada página: por eso la escribimos en <html>.
-// Al salir de la página se borra y el gancho vuelve al turquesa de marca.
+// variables que pone cada página: por eso las escribimos en <html>.
+// Al salir de la página se borran y el logo vuelve a los colores de marca.
 import { useEffect } from "react";
+import { colorAcento, colorDeTexto } from "@/lib/colores";
 
-export default function LogoDelDia({ color }) {
+export default function LogoDelDia({ colores }) {
+  // El color más vivo de la paleta, y blanco o negro para la percha encima.
+  const color = colorAcento(colores ?? []);
+  const colorTrazo = color ? colorDeTexto(color) : null;
+
   useEffect(() => {
     if (!color) return;
-    const html = document.documentElement;
-    html.style.setProperty("--logo-gancho", color);
-    return () => html.style.removeProperty("--logo-gancho");
-  }, [color]);
+    const estilo = document.documentElement.style;
+    estilo.setProperty("--logo-fondo-1", color);
+    estilo.setProperty("--logo-fondo-2", color);
+    if (colorTrazo) estilo.setProperty("--logo-trazo", colorTrazo);
+    return () => {
+      estilo.removeProperty("--logo-fondo-1");
+      estilo.removeProperty("--logo-fondo-2");
+      estilo.removeProperty("--logo-trazo");
+    };
+  }, [color, colorTrazo]);
 
   return null;
 }
