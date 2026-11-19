@@ -20,6 +20,11 @@ test("familiaDeColor agrupa por tono y separa los neutros", () => {
   assert.equal(familiaDeColor("#1f3250").clave, "azules"); // azul marino
 });
 
+test("familiaDeColor no rompe con un hex malformado", () => {
+  assert.equal(familiaDeColor("no-es-color").clave, "neutros");
+  assert.equal(familiaDeColor(undefined).clave, "neutros");
+});
+
 test("masUsadas ordena por usos y deja afuera las nunca usadas", () => {
   const prendas = [prenda("a", "#fff", 2), prenda("b", "#fff", 0), prenda("c", "#fff", 5)];
   assert.deepEqual(
