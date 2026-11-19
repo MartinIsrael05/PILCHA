@@ -1,9 +1,22 @@
 @import "tailwindcss";
 
-/* Colores base de la app. Más adelante /hoy los pisa con la paleta del día. */
+/* Tokens de marca de PILCHA.
+ * Pisar los valores de --marca-* para cambiar la identidad visual sin tocar
+ * el resto del código. Los colores base de la UI (--background, --foreground,
+ * --muted, --border) y los acentos del gradient (var --marca-*) los usan
+ * componentes como el hero, el footer y el maniquí. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* === Marca PILCHA (pisar al rediseñar) =================================== */
+  /* Los 3 acentos vienen del favicon (los cuadraditos del pie del logo).    */
+  --marca-primario: #e07a5f; /* terracota */
+  --marca-secundario: #f2a65a; /* naranja */
+  --marca-terciario: #3d9a9b; /* turquesa */
+  --marca-foreground: #171717; /* color del texto y del logo */
+  --marca-background: #ffffff; /* color del fondo claro */
+
+  /* === UI base (deriva de la marca; se puede pisar aparte) ================ */
+  --background: var(--marca-background);
+  --foreground: var(--marca-foreground);
   --muted: #5b6270;
   --border: #e5e7eb;
 }
@@ -81,7 +94,13 @@
   50% { background-position: 100% 50%; }
 }
 .pilcha-gradient {
-  background-image: linear-gradient(120deg, #f2a65a, #3d9a9b, #4f7cac, #e34948, #f2a65a);
+  background-image: linear-gradient(
+    120deg,
+    var(--marca-secundario),
+    var(--marca-terciario),
+    var(--marca-primario),
+    var(--marca-secundario)
+  );
   background-size: 300% 300%;
   animation: pilcha-gradient-move 18s ease-in-out infinite;
 }
@@ -89,7 +108,13 @@
 /* Variante para usar como texto: el gradiente se recorta a la silueta de
    las letras. background-clip: text requiere color transparente. */
 .pilcha-gradient-text {
-  background-image: linear-gradient(120deg, #e34948, #f2a65a, #3d9a9b, #4f7cac, #e34948);
+  background-image: linear-gradient(
+    120deg,
+    var(--marca-primario),
+    var(--marca-secundario),
+    var(--marca-terciario),
+    var(--marca-primario)
+  );
   background-size: 300% 300%;
   animation: pilcha-gradient-move 14s ease-in-out infinite;
   -webkit-background-clip: text;

@@ -66,7 +66,7 @@ export default function RootLayout({ children }) {
           {/* Header: logo + perfil/tema/salir. En escritorio, una fila aparte
               debajo con la navegación. En mobile, la nav vive en el pie. */}
           <header className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/70">
-            <div className="mx-auto flex max-w-5xl items-center justify-between gap-x-4 px-4 py-3">
+            <div className="mx-auto flex max-w-6xl items-center justify-between gap-x-4 px-4 py-3">
               <Link
                 href="/"
                 className="flex items-center gap-2 text-xl font-black tracking-widest focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground"
@@ -75,12 +75,12 @@ export default function RootLayout({ children }) {
               </Link>
               <UserMenu />
             </div>
-            <div className="mx-auto max-w-5xl px-2 pb-2">
+            <div className="mx-auto max-w-6xl px-2 pb-2">
               <BarraNavEscritorio />
             </div>
           </header>
 
-          <main id="contenido" className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:py-10">
+          <main id="contenido" className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:py-10">
             {children}
           </main>
 

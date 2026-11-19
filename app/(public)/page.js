@@ -4,9 +4,7 @@ import { getCurrentUser } from "@/lib/auth/session";
 import { CLIMAS } from "@/lib/paletas";
 import Reveal from "@/components/landing/Reveal";
 import DemoManiqui from "@/components/landing/DemoManiqui";
-
-// Ocultamos ESLint warning: Reveal se importa pero solo se usa en las
-// secciones debajo del fold. (Si saco el import, las usa el resto.)
+import HeroAnimado from "@/components/landing/HeroAnimado";
 
 export const metadata = {
   // absolute evita que el template del layout agregue " | PILCHA" otra vez
@@ -43,46 +41,52 @@ function Hero() {
       />
       <div aria-hidden="true" className="pilcha-dots absolute inset-0 -z-10" />
 
-      {/* El hero está sobre el fold: no lo envolvemos en Reveal porque ya
-          está en viewport y mostrar fade cada carga se siente inconsistente. */}
-      <div className="mx-auto grid max-w-5xl gap-10 lg:grid-cols-[1.4fr_1fr] lg:items-center">
-        <div className="flex flex-col gap-6">
-          <p className="text-xs font-semibold uppercase tracking-widest text-muted">
-            Clima · Placard · Paletas
-          </p>
-          <h1 className="text-5xl font-black leading-[1.02] tracking-tight sm:text-7xl">
-            ¿Qué me pongo
-            <br />
-            <span className="pilcha-gradient-text">hoy?</span>
-          </h1>
-          <p className="max-w-xl text-lg text-muted sm:text-xl">
-            PILCHA mira el pronóstico entre la hora en que salís y la que
-            volvés, y te arma el outfit del día con la ropa de tu placard.
-            Aprende de vos y rota lo que ya tenés.
-          </p>
-          <div className="flex flex-wrap items-center gap-3 pt-2">
-            <Link
-              href="/registro"
-              className="rounded-full bg-foreground px-6 py-3 font-medium text-background shadow-sm transition hover:opacity-90 hover:shadow-md"
+      {/* HeroAnimado anima los elementos con data-hero-item con GSAP
+          (stagger). El hero está sobre el fold, así que la animación corre
+          una sola vez al montar. */}
+      <HeroAnimado>
+        <div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[1.4fr_1fr] lg:items-center">
+          <div className="flex flex-col gap-6">
+            <p data-hero-item className="text-xs font-semibold uppercase tracking-widest text-muted">
+              Clima · Placard · Paletas
+            </p>
+            <h1
+              data-hero-item
+              className="text-5xl font-black leading-[1.02] tracking-tight sm:text-7xl"
             >
-              Crear cuenta gratis
-            </Link>
-            <Link
-              href="/login"
-              className="rounded-full border border-border px-6 py-3 font-medium hover:bg-border/40"
-            >
-              Ya tengo cuenta
-            </Link>
+              ¿Qué me pongo
+              <br />
+              <span className="pilcha-gradient-text">hoy?</span>
+            </h1>
+            <p data-hero-item className="max-w-xl text-lg text-muted sm:text-xl">
+              PILCHA mira el pronóstico entre la hora en que salís y la que
+              volvés, y te arma el outfit del día con la ropa de tu placard.
+              Aprende de vos y rota lo que ya tenés.
+            </p>
+            <div data-hero-item className="flex flex-wrap items-center gap-3 pt-2">
+              <Link
+                href="/registro"
+                className="rounded-full bg-foreground px-6 py-3 font-medium text-background shadow-sm transition hover:opacity-90 hover:shadow-md"
+              >
+                Crear cuenta gratis
+              </Link>
+              <Link
+                href="/login"
+                className="rounded-full border border-border px-6 py-3 font-medium hover:bg-border/40"
+              >
+                Ya tengo cuenta
+              </Link>
+            </div>
+            <p data-hero-item className="text-sm text-muted">
+              Sin tarjeta. Tus datos quedan en tu cuenta.
+            </p>
           </div>
-          <p className="text-sm text-muted">
-            Sin tarjeta. Tus datos quedan en tu cuenta.
-          </p>
-        </div>
 
-        <div className="flex justify-center lg:justify-end">
-          <DemoManiqui />
+          <div data-hero-item className="flex justify-center lg:justify-end">
+            <DemoManiqui />
+          </div>
         </div>
-      </div>
+      </HeroAnimado>
     </section>
   );
 }
@@ -112,7 +116,7 @@ function ComoFunciona() {
   return (
     <section
       aria-labelledby="como-funciona"
-      className="mx-auto flex max-w-5xl flex-col gap-10"
+      className="mx-auto flex max-w-6xl flex-col gap-10"
     >
       <Reveal className="flex flex-col gap-2">
         <p className="text-xs font-semibold uppercase tracking-widest text-muted">
@@ -143,7 +147,7 @@ function ParaCadaClima() {
   return (
     <section
       aria-labelledby="para-cada-clima"
-      className="mx-auto flex max-w-5xl flex-col gap-10"
+      className="mx-auto flex max-w-6xl flex-col gap-10"
     >
       <Reveal className="flex max-w-2xl flex-col gap-2">
         <p className="text-xs font-semibold uppercase tracking-widest text-muted">
@@ -213,7 +217,7 @@ function Beneficios() {
   return (
     <section
       aria-labelledby="beneficios"
-      className="mx-auto flex max-w-5xl flex-col gap-10"
+      className="mx-auto flex max-w-6xl flex-col gap-10"
     >
       <Reveal className="flex max-w-2xl flex-col gap-2">
         <p className="text-xs font-semibold uppercase tracking-widest text-muted">
@@ -245,7 +249,7 @@ function CTAFinal() {
   return (
     <Reveal
       as="section"
-      className="relative isolate mx-auto flex w-full max-w-5xl flex-col items-center gap-6 overflow-hidden rounded-3xl border border-border p-10 text-center sm:p-16"
+      className="relative isolate mx-auto flex w-full max-w-6xl flex-col items-center gap-6 overflow-hidden rounded-3xl border border-border p-10 text-center sm:p-16"
     >
       <div
         aria-hidden="true"
