@@ -5,7 +5,7 @@
 // En escritorio: outfit a la izquierda (más ancho) y clima a la derecha
 // (sticky, más angosto). En mobile: se apila.
 import Link from "next/link";
-import { getPronostico, resumirVentana, condicionPaleta } from "@/lib/clima";
+import { getPronostico, resumirVentana, condicionPaleta, elegirFecha } from "@/lib/clima";
 import { recomendar } from "@/lib/recomendar";
 import { listarPrendas } from "@/lib/data/prendas";
 import { getPaletaDelDia } from "@/lib/data/paletas";
@@ -17,7 +17,7 @@ import OutfitSugerido from "@/components/outfit/OutfitSugerido";
 import RecomendacionGenerica from "@/components/outfit/RecomendacionGenerica";
 import UsarOutfit from "@/components/outfit/UsarOutfit";
 
-export default async function OutfitDelDia({ user, ubicacion, desde, hasta }) {
+export default async function OutfitDelDia({ user, ubicacion, desde, hasta, dia, hrefManana }) {
   let pronostico;
   try {
     pronostico = await getPronostico(ubicacion.lat, ubicacion.lon);
@@ -30,7 +30,10 @@ export default async function OutfitDelDia({ user, ubicacion, desde, hasta }) {
     );
   }
 
-  const clima = resumirVentana(pronostico, desde, hasta);
+  // El día que eligieron las pestañas (o el automático).
+  const { fecha } = elegirFecha(pronostico, dia, hasta);
+  const clima = resumirVentana(pronostico, desde, hasta, { fecha });
+  const paraManana = clima?.paraManana ?? false;
   if (!clima) return <Aviso>No hay datos del clima para ese horario.</Aviso>;
 
   // El placard y la paleta no dependen uno del otro: los pedimos en paralelo.
@@ -51,7 +54,12 @@ export default async function OutfitDelDia({ user, ubicacion, desde, hasta }) {
       <div className="flex flex-col gap-4" style={variablesDeTema(paleta)}>
         {/* El isotipo del logo toma el color de la paleta del día. */}
         <LogoDelDia colores={paleta?.colores} />
-        <RecomendacionGenerica recomendacion={recomendacion} logueado conInvitacion={false} />
+        <RecomendacionGenerica
+          recomendacion={recomendacion}
+          logueado
+          conInvitacion={false}
+          paraManana={paraManana}
+        />
         <p className="rounded-2xl border border-dashed border-border bg-background p-5 text-muted">
           Todavía no cargaste ropa.{" "}
           <Link href="/placard/nueva" className="font-semibold text-foreground underline">
@@ -65,13 +73,16 @@ export default async function OutfitDelDia({ user, ubicacion, desde, hasta }) {
           desde={desde}
           hasta={hasta}
         />
-        <ClimaManana
-          pronostico={pronostico}
-          clima={clima}
-          desde={desde}
-          hasta={hasta}
-          perfil={perfil}
-        />
+        {!paraManana && (
+          <ClimaManana
+            pronostico={pronostico}
+            clima={clima}
+            desde={desde}
+            hasta={hasta}
+            perfil={perfil}
+            hrefManana={hrefManana}
+          />
+        )}
       </div>
     );
   }
@@ -88,8 +99,10 @@ export default async function OutfitDelDia({ user, ubicacion, desde, hasta }) {
       {/* El isotipo del logo toma el color de la paleta del día. */}
       <LogoDelDia colores={paleta?.colores} />
       <div className="flex flex-col gap-5 lg:col-span-4">
-        <OutfitSugerido recomendacion={recomendacion} paleta={paleta}>
-          {prendaIds.length > 0 && (
+        <OutfitSugerido recomendacion={recomendacion} paleta={paleta} paraManana={paraManana}>
+          {/* "Usé este outfit" guarda el outfit con la fecha de hoy: con
+              el de mañana el historial y el ajuste térmico quedarían mal. */}
+          {prendaIds.length > 0 && !paraManana && (
             <UsarOutfit
               prendaIds={prendaIds}
               ubicacion={ubicacion}
@@ -98,14 +111,18 @@ export default async function OutfitDelDia({ user, ubicacion, desde, hasta }) {
             />
           )}
         </OutfitSugerido>
-        {/* Debajo del outfit de hoy: qué cambia mañana. */}
-        <ClimaManana
-          pronostico={pronostico}
-          clima={clima}
-          desde={desde}
-          hasta={hasta}
-          perfil={perfil}
-        />
+        {/* Debajo del outfit de hoy: qué cambia mañana. Mirando mañana no
+            hace falta: las pestañas de arriba ya muestran la diferencia. */}
+        {!paraManana && (
+          <ClimaManana
+            pronostico={pronostico}
+            clima={clima}
+            desde={desde}
+            hasta={hasta}
+            perfil={perfil}
+            hrefManana={hrefManana}
+          />
+        )}
       </div>
       {/* sticky top: el resumen del clima queda a la vista mientras scrolleás
           hora por hora. En mobile el sticky no molesta porque es una columna. */}
