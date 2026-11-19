@@ -1,30 +1,36 @@
-"use client"; // GSAP anima la entrada de las prendas; el SVG se renderiza igual.
+"use client";
 
-// Preview visual del outfit sobre una silueta humana. Cada prenda se dibuja
-// como una silueta SVG distinta según su categoría y nivel de abrigo. Si la
-// prenda tiene foto, la foto se recorta a la silueta con un <clipPath>.
+// Preview del outfit sobre una silueta humana. Cada prenda se dibuja como
+// una silueta SVG distinta según su categoría y nivel de abrigo. Si la prenda
+// tiene foto, se recorta a la silueta con un <clipPath>.
 //
-// El orden del z-index está pensado para que un abrigo vaya SOBRE el superior
-// y los accesorios SOBRE todo.
-import { useEffect, useRef } from "react";
+// Interacciones:
+// - Entrada escalonada de las prendas con GSAP (fade + scale).
+// - Hover sobre una prenda: aparece un panel con la foto grande, el color y
+//   los datos. En mobile se toca una vez para "fijarla" (toggle).
+// - El panel usa GSAP para entrar/salir con transición suave.
+//
+// Z-index de capas: superior → inferior → calzado → abrigo (encima del
+// superior) → accesorio.
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import gsap from "gsap";
-import { CATEGORIAS } from "@/lib/prendas";
+import { CATEGORIAS, NIVELES_ABRIGO } from "@/lib/prendas";
 import { colorDeTexto } from "@/lib/colores";
 import { siluetaPrenda } from "@/components/outfit/siluetasPrendas";
 
-// Orden de dibujo (los primeros van atrás, los últimos adelante).
 const ORDEN = ["superior", "inferior", "calzado", "abrigo", "accesorio"];
 
 export default function ManiquiOutfit({ recomendacion }) {
   const contenedor = useRef(null);
+  const [activa, setActiva] = useState(null);
   const porCategoria = Object.fromEntries(
     recomendacion.outfit.map((item) => [item.categoria, item]),
   );
+  const itemActivo = activa ? porCategoria[activa] : null;
 
-  // Entrada escalonada de las prendas con GSAP: cada <g data-prenda> aparece
-  // con un fade + scale sutil. Si el usuario pide reducir movimiento, GSAP
-  // deja todo en el estado final sin animar.
+  // Entrada escalonada al montar o cambiar la recomendación.
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const ctx = gsap.context(() => {
@@ -42,11 +48,14 @@ export default function ManiquiOutfit({ recomendacion }) {
       );
     }, contenedor);
     return () => ctx.revert();
-    // Si cambia el outfit (misma vista, distinta recomendación), re-animamos.
   }, [recomendacion]);
 
   return (
-    <div ref={contenedor} className="flex flex-col gap-4">
+    <div
+      ref={contenedor}
+      className="relative flex flex-col gap-4"
+      onPointerLeave={() => setActiva(null)}
+    >
       <div className="relative mx-auto flex w-full max-w-sm items-center justify-center rounded-2xl bg-background p-3">
         <svg
           viewBox="0 0 240 480"
@@ -55,8 +64,6 @@ export default function ManiquiOutfit({ recomendacion }) {
           className="h-auto w-full"
         >
           <defs>
-            {/* Un clipPath por cada prenda con foto. Dentro del clip vive la
-                imagen. Solo armamos los clips que vamos a usar. */}
             {ORDEN.map((categoria) => {
               const item = porCategoria[categoria];
               const silueta = item?.prenda && siluetaPrenda(categoria, item.prenda.abrigo);
@@ -74,15 +81,34 @@ export default function ManiquiOutfit({ recomendacion }) {
           {ORDEN.map((categoria) => {
             const item = porCategoria[categoria];
             if (!item?.prenda) return null;
-            return <PrendaSVG key={categoria} categoria={categoria} prenda={item.prenda} />;
+            return (
+              <PrendaSVG
+                key={categoria}
+                categoria={categoria}
+                prenda={item.prenda}
+                activa={activa === categoria}
+                onActivar={() => setActiva(categoria)}
+              />
+            );
           })}
         </svg>
+
+        {/* Panel de preview que aparece al hover/tap. */}
+        {itemActivo?.prenda && (
+          <PreviewPrenda prenda={itemActivo.prenda} categoria={itemActivo.categoria} />
+        )}
       </div>
 
-      {/* Leyenda: lista accesible con nombre y link a cada prenda. */}
+      {/* Leyenda abajo: lista textual accesible con link a cada prenda. */}
       <ul className="flex flex-col gap-1.5 text-sm">
         {recomendacion.outfit.map((item) => (
-          <li key={item.categoria} className="flex items-center gap-2 text-foreground/90">
+          <li
+            key={item.categoria}
+            className={`flex items-center gap-2 rounded-md px-1 text-foreground/90 transition ${
+              activa === item.categoria && item.prenda ? "bg-[var(--marca-secundario)]/10" : ""
+            }`}
+            onPointerEnter={() => item.prenda && setActiva(item.categoria)}
+          >
             <span
               aria-hidden="true"
               className="inline-flex size-4 shrink-0 items-center justify-center rounded-sm border"
@@ -109,11 +135,15 @@ export default function ManiquiOutfit({ recomendacion }) {
           </li>
         ))}
       </ul>
+
+      <p className="text-center text-xs text-foreground/60">
+        Pasá el mouse o tocá una prenda del maniquí para verla.
+      </p>
     </div>
   );
 }
 
-// Silueta humana base: queda atrás de todas las prendas.
+// Silueta humana base.
 function Silueta() {
   return (
     <g
@@ -124,36 +154,62 @@ function Silueta() {
       strokeLinejoin="round"
       aria-hidden="true"
     >
-      {/* Cabeza */}
       <circle cx="120" cy="52" r="28" />
-      {/* Cuello */}
       <path d="M108 78 L108 96 L132 96 L132 78 Z" />
-      {/* Torso + brazos */}
       <path d="M72 100 Q96 94 120 96 Q144 94 168 100 L178 240 L156 242 L152 112 L88 112 L84 242 L62 240 Z" />
-      {/* Piernas */}
       <path d="M84 242 L74 412 L112 412 L120 258 L128 412 L166 412 L156 242 Z" />
-      {/* Pies (los tapa el calzado si hay) */}
       <path d="M74 412 Q70 428 92 428 L112 428 L112 412 Z" />
       <path d="M166 412 Q170 428 148 428 L128 428 L128 412 Z" />
     </g>
   );
 }
 
-// Dibuja una prenda: si tiene foto, la foto va dentro del clip de la silueta;
-// si no, un path relleno con el color. Si la silueta define `linea` (abrigos),
-// la dibuja encima para marcar el cierre central. Si define `pompon`
-// (gorro), dibuja el circulito.
-function PrendaSVG({ categoria, prenda }) {
+// Una prenda dibujada sobre el maniquí. Capta pointer-events para activar
+// el preview al hover. En hover, se agranda sutilmente con GSAP.
+function PrendaSVG({ categoria, prenda, activa, onActivar }) {
+  const ref = useRef(null);
   const silueta = siluetaPrenda(categoria, prenda.abrigo);
-  if (!silueta) return null;
-
   const colorIcono = colorDeTexto(prenda.color.hex);
 
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
+    // Scale al activarse: el contorno se "resalta".
+    gsap.to(el, {
+      scale: activa ? 1.04 : 1,
+      duration: 0.3,
+      ease: "power2.out",
+      transformOrigin: "50% 50%",
+    });
+  }, [activa]);
+
+  if (!silueta) return null;
+
   return (
-    <g data-prenda data-categoria={categoria}>
+    <g
+      ref={ref}
+      data-prenda
+      data-categoria={categoria}
+      onPointerEnter={onActivar}
+      onFocus={onActivar}
+      tabIndex={0}
+      role="button"
+      aria-label={`${CATEGORIAS[categoria]}: ${prenda.nombre}`}
+      style={{ cursor: "pointer", outline: "none" }}
+    >
+      {/* Hit area (invisible pero recibe pointer-events): solo el rect del
+          bounding box de la silueta responde al hover. */}
+      <rect
+        x={silueta.x - 2}
+        y={silueta.y - 2}
+        width={silueta.w + 4}
+        height={silueta.h + 4}
+        fill="transparent"
+      />
       {prenda.imagenUrl ? (
         <>
-          {/* La imagen se recorta al contorno de la silueta con el clipPath. */}
           <image
             href={prenda.imagenUrl}
             x={silueta.x}
@@ -166,17 +222,29 @@ function PrendaSVG({ categoria, prenda }) {
           <path
             d={silueta.d}
             fill="none"
-            stroke="currentColor"
-            strokeOpacity="0.15"
-            strokeWidth="1"
+            stroke={activa ? "var(--marca-primario)" : "currentColor"}
+            strokeOpacity={activa ? "0.9" : "0.15"}
+            strokeWidth={activa ? "2" : "1"}
           />
         </>
       ) : (
-        <path d={silueta.d} fill={prenda.color.hex} stroke="currentColor" strokeOpacity="0.15" />
+        <path
+          d={silueta.d}
+          fill={prenda.color.hex}
+          stroke={activa ? "var(--marca-primario)" : "currentColor"}
+          strokeOpacity={activa ? "0.9" : "0.15"}
+          strokeWidth={activa ? "2" : "1"}
+        />
       )}
 
       {silueta.linea && (
-        <path d={silueta.linea} fill="none" stroke={colorIcono} strokeOpacity="0.35" strokeWidth="1" />
+        <path
+          d={silueta.linea}
+          fill="none"
+          stroke={colorIcono}
+          strokeOpacity="0.35"
+          strokeWidth="1"
+        />
       )}
       {silueta.pompon && (
         <circle
@@ -189,8 +257,70 @@ function PrendaSVG({ categoria, prenda }) {
         />
       )}
 
-      {/* Título accesible para hover/screen reader. */}
       <title>{`${CATEGORIAS[categoria]}: ${prenda.nombre}`}</title>
     </g>
+  );
+}
+
+// Panel flotante con la foto grande y los datos. Entra con GSAP.
+function PreviewPrenda({ prenda, categoria }) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    gsap.fromTo(
+      el,
+      { opacity: 0, y: 8, scale: 0.96 },
+      {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: reduce ? 0 : 0.28,
+        ease: "power3.out",
+      },
+    );
+  }, [prenda.id]);
+
+  return (
+    <div
+      ref={ref}
+      role="dialog"
+      aria-label={`Preview de ${prenda.nombre}`}
+      className="pointer-events-none absolute right-2 top-2 flex w-44 flex-col gap-2 rounded-xl border border-border bg-background p-2 shadow-xl sm:w-52"
+    >
+      <div
+        className="relative aspect-square w-full overflow-hidden rounded-lg"
+        style={{ backgroundColor: prenda.color.hex }}
+      >
+        {prenda.imagenUrl ? (
+          <Image
+            src={prenda.imagenUrl}
+            alt={prenda.nombre}
+            fill
+            sizes="200px"
+            className="object-cover"
+          />
+        ) : (
+          <span
+            className="flex size-full items-center justify-center text-sm font-semibold"
+            style={{ color: colorDeTexto(prenda.color.hex) }}
+          >
+            {CATEGORIAS[categoria]}
+          </span>
+        )}
+      </div>
+      <div className="flex flex-col gap-0.5 text-foreground">
+        <p className="truncate text-sm font-semibold">{prenda.nombre}</p>
+        <p className="text-xs text-muted">
+          {CATEGORIAS[categoria]} · {prenda.color.nombre}
+        </p>
+        <p className="text-xs text-muted">
+          Abrigo {prenda.abrigo} ({NIVELES_ABRIGO[prenda.abrigo].toLowerCase()})
+          {prenda.impermeable && " · Impermeable"}
+        </p>
+      </div>
+    </div>
   );
 }

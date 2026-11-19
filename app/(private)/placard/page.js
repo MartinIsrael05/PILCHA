@@ -6,6 +6,7 @@ import FiltrosPlacard from "@/components/placard/FiltrosPlacard";
 import PrendaCard from "@/components/placard/PrendaCard";
 import PageHeader from "@/components/ui/PageHeader";
 import VacioCard from "@/components/ui/VacioCard";
+import StaggerGSAP from "@/components/ui/StaggerGSAP";
 
 export const metadata = {
   title: "Mi placard",
@@ -23,7 +24,7 @@ export default async function PlacardPage({ searchParams }) {
   const accion = prendas.length > 0 && (
     <Link
       href="/placard/nueva"
-      className="inline-flex items-center gap-1 rounded-full bg-foreground px-5 py-2.5 font-medium text-background hover:opacity-90"
+      className="inline-flex items-center gap-1 rounded-full bg-[var(--marca-primario)] px-5 py-2.5 font-medium text-white shadow-sm transition hover:brightness-110 hover:shadow-md"
     >
       <span aria-hidden="true">+</span> Agregar prenda
     </Link>
@@ -62,11 +63,15 @@ export default async function PlacardPage({ searchParams }) {
               descripcion="Ninguna prenda coincide con esos filtros. Probá sacar alguno."
             />
           ) : (
-            <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+            <StaggerGSAP
+              as="ul"
+              selector="li[data-stagger]"
+              className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
+            >
               {visibles.map((prenda) => (
                 <PrendaCard key={prenda.id} prenda={prenda} />
               ))}
-            </ul>
+            </StaggerGSAP>
           )}
         </>
       )}

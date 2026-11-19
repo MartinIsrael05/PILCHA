@@ -6,6 +6,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import UserMenu from "@/components/auth/UserMenu";
 import { BarraNavEscritorio, BarraNavMobile } from "@/components/ui/BarraNav";
 import Footer from "@/components/ui/Footer";
+import FondoDecorativo from "@/components/ui/FondoDecorativo";
 
 // Pisa el tema (claro/oscuro) antes de que React pinte. Así no se ve el
 // flash blanco si el usuario guardó "oscuro". Es chico y se inyecta inline.
@@ -57,6 +58,9 @@ export default function RootLayout({ children }) {
       <body className="flex min-h-full flex-col">
         {/* beforeInteractive: corre antes del primer render. Previene el flash. */}
         <Script id="boot-tema" strategy="beforeInteractive">{BOOT_TEMA}</Script>
+        {/* Fondo decorativo: sol en claro, estrellas y luna en oscuro. Fixed
+            detrás de todo, sin eventos de puntero. */}
+        <FondoDecorativo />
         <AuthProvider>
           {/* Link oculto que aparece al enfocar con tab: accesibilidad. */}
           <a href="#contenido" className="skip-link">
