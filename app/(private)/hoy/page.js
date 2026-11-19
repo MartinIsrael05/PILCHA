@@ -5,6 +5,7 @@ import SelectorUbicacion from "@/components/clima/SelectorUbicacion";
 import SelectorHorario from "@/components/clima/SelectorHorario";
 import ClimaSkeleton from "@/components/clima/ClimaSkeleton";
 import OutfitDelDia from "@/components/outfit/OutfitDelDia";
+import PageHeader from "@/components/ui/PageHeader";
 
 export const metadata = {
   title: "Hoy",
@@ -22,30 +23,32 @@ export default async function HoyPage({ searchParams }) {
     hasta: user.horaVuelta,
   });
 
-  const saludo = user.nombre ? `Hola, ${user.nombre}` : "Hola";
+  const saludo = user.nombre ? `Hola, ${user.nombre.split(" ")[0]}` : "Hola";
 
   return (
-    <section className="flex flex-col gap-6">
-      <h1 className="text-3xl font-bold">{saludo}</h1>
+    <section className="flex flex-col gap-8">
+      <PageHeader
+        titulo={saludo}
+        descripcion="Te armamos el outfit del día con tu placard y el clima."
+      />
 
-      <SelectorUbicacion ubicacionActual={ubicacion} />
+      <div className="flex flex-col gap-3">
+        <SelectorUbicacion ubicacionActual={ubicacion} />
+        {ubicacion && <SelectorHorario desde={desde} hasta={hasta} />}
+      </div>
 
       {ubicacion && (
-        <>
-          <SelectorHorario desde={desde} hasta={hasta} />
-          {/* key: al cambiar ubicación u horario vuelve el skeleton */}
-          <Suspense
-            key={`${ubicacion.lat},${ubicacion.lon},${desde},${hasta}`}
-            fallback={<ClimaSkeleton />}
-          >
-            <OutfitDelDia
-              user={user}
-              ubicacion={ubicacion}
-              desde={desde}
-              hasta={hasta}
-            />
-          </Suspense>
-        </>
+        <Suspense
+          key={`${ubicacion.lat},${ubicacion.lon},${desde},${hasta}`}
+          fallback={<ClimaSkeleton />}
+        >
+          <OutfitDelDia
+            user={user}
+            ubicacion={ubicacion}
+            desde={desde}
+            hasta={hasta}
+          />
+        </Suspense>
       )}
     </section>
   );

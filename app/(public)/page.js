@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth/session";
 import { leerHorario, leerUbicacion } from "@/lib/ubicacion";
 import SelectorUbicacion from "@/components/clima/SelectorUbicacion";
@@ -27,19 +28,38 @@ export default async function HomePage({ searchParams }) {
     : null;
 
   return (
-    <div className="flex flex-col gap-10">
-      <section className="flex flex-col gap-4">
-        <h1 className="text-4xl font-black tracking-tight sm:text-6xl">
+    <div className="flex flex-col gap-12">
+      <section className="flex flex-col gap-5 pt-4 sm:pt-6">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted">
+          Clima + placard + paletas
+        </p>
+        <h1 className="text-5xl font-black tracking-tight leading-[1.05] sm:text-7xl">
           ¿Qué me pongo hoy?
         </h1>
-        <p className="max-w-2xl text-lg text-muted">
+        <p className="max-w-2xl text-lg text-muted sm:text-xl">
           PILCHA mira el pronóstico entre la hora en que salís y la hora en que
           volvés, y te arma el outfit del día con la ropa de tu propio placard.
         </p>
+        {!user && (
+          <div className="flex flex-wrap items-center gap-3 pt-2">
+            <Link
+              href="/registro"
+              className="rounded-full bg-foreground px-6 py-3 font-medium text-background hover:opacity-90"
+            >
+              Crear cuenta gratis
+            </Link>
+            <Link
+              href="/paletas"
+              className="rounded-full border border-border px-6 py-3 font-medium hover:bg-border/40"
+            >
+              Ver paletas
+            </Link>
+          </div>
+        )}
       </section>
 
       <section className="flex flex-col gap-4" aria-labelledby="titulo-clima">
-        <h2 id="titulo-clima" className="text-xl font-bold">
+        <h2 id="titulo-clima" className="text-xl font-bold border-b border-border pb-2">
           El clima de tu día
         </h2>
 

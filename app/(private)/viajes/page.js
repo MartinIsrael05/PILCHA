@@ -6,6 +6,8 @@ import { leerUbicacion } from "@/lib/ubicacion";
 import { fechaArgentina, formatearDia, MAX_DIAS_VIAJE } from "@/lib/viajes";
 import PlanearViaje from "@/components/viajes/PlanearViaje";
 import PlanDeViaje from "@/components/viajes/PlanDeViaje";
+import PageHeader from "@/components/ui/PageHeader";
+import VacioCard from "@/components/ui/VacioCard";
 
 export const metadata = {
   title: "Modo viaje",
@@ -24,13 +26,10 @@ export default async function ViajesPage({ searchParams }) {
 
   return (
     <section className="flex flex-col gap-8">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-bold">Modo viaje</h1>
-        <p className="text-muted">
-          Elegí a dónde vas y cuándo: miramos el pronóstico de cada día y te
-          armamos la valija con tu placard, sin llevar de más.
-        </p>
-      </div>
+      <PageHeader
+        titulo="Modo viaje"
+        descripcion="Elegí a dónde vas y cuándo: miramos el pronóstico y te armamos la valija con tu placard, sin llevar de más."
+      />
 
       <PlanearViaje
         inicial={{ ciudad: ubicacion, desde, hasta }}
@@ -60,13 +59,14 @@ export default async function ViajesPage({ searchParams }) {
       )}
 
       <section aria-labelledby="titulo-viajes" className="flex flex-col gap-3">
-        <h2 id="titulo-viajes" className="text-xl font-semibold">
+        <h2 id="titulo-viajes" className="text-xl font-semibold border-b border-border pb-2">
           Tus viajes
         </h2>
         {viajes.length === 0 ? (
-          <p className="rounded-2xl border border-dashed border-border p-5 text-muted">
-            Todavía no guardaste ningún viaje.
-          </p>
+          <VacioCard
+            titulo="Todavía no guardaste ningún viaje"
+            descripcion="Planeá uno arriba y después guardalo para tenerlo a mano."
+          />
         ) : (
           <ul className="grid gap-3 sm:grid-cols-2">
             {viajes.map((v) => (
