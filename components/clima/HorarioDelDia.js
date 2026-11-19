@@ -3,24 +3,23 @@
 //
 // Usa el mismo getPronostico que el outfit: Next deduplica los fetch iguales
 // dentro de un mismo request, así que no es una llamada extra a Open-Meteo.
-import { getPronostico, horasDelDia, resumirVentana } from "@/lib/clima";
+import { elegirFecha, getPronostico, horasDelDia } from "@/lib/clima";
 import SelectorHorario from "./SelectorHorario";
 
-export default async function HorarioDelDia({ ubicacion, desde, hasta }) {
+export default async function HorarioDelDia({ ubicacion, desde, hasta, dia }) {
   let horas = null;
   let paraManana = false;
   let horaActual = null;
 
   try {
     const pronostico = await getPronostico(ubicacion.lat, ubicacion.lon);
-    const ventana = resumirVentana(pronostico, desde, hasta);
-    if (ventana) {
-      horas = horasDelDia(pronostico, ventana.fecha);
-      paraManana = ventana.paraManana;
-      // La marca de "ahora" solo tiene sentido si mostramos el día de hoy.
-      if (!paraManana && pronostico.current?.time) {
-        horaActual = Number(pronostico.current.time.slice(11, 13));
-      }
+    // El mismo día que muestran las pestañas y el outfit.
+    const { fecha, hoy } = elegirFecha(pronostico, dia, hasta);
+    horas = horasDelDia(pronostico, fecha);
+    paraManana = fecha !== hoy;
+    // La marca de "ahora" solo tiene sentido si mostramos el día de hoy.
+    if (!paraManana && pronostico.current?.time) {
+      horaActual = Number(pronostico.current.time.slice(11, 13));
     }
   } catch {
     // Sin pronóstico, el selector funciona igual pero sin la curva.

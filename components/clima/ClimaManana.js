@@ -1,12 +1,14 @@
 // Tarjeta "Tené en cuenta": qué cambia mañana respecto del día que se está
 // mostrando. Server Component: recibe el pronóstico que ya se pidió para
 // /hoy (no hace otra llamada) y usa lib/manana.js para los consejos.
-import { describirCodigo, diaSiguiente, resumirVentana } from "@/lib/clima";
+import Link from "next/link";
+import { describirCodigo, diaSiguiente, nombreDelDia, resumirVentana } from "@/lib/clima";
 import { compararConManana } from "@/lib/manana";
 
 const ICONOS = { frio: "🌬️", calor: "☀️", abrigo: "🧥", lluvia: "☔", capas: "🌡️" };
 
-export default function ClimaManana({ pronostico, clima, desde, hasta, perfil }) {
+// hrefManana (opcional): link a la pestaña "Mañana" de /hoy.
+export default function ClimaManana({ pronostico, clima, desde, hasta, perfil, hrefManana }) {
   // Si la ventana de hoy ya pasó, la app muestra mañana: la tarjeta habla
   // del día siguiente a ese (pasado mañana), así no repite el mismo día.
   const fecha = diaSiguiente(clima.fecha);
@@ -61,16 +63,16 @@ export default function ClimaManana({ pronostico, clima, desde, hasta, perfil })
           Parecido a hoy: el mismo outfit te va a servir.
         </p>
       )}
+
+      {hrefManana && (
+        <Link
+          href={hrefManana}
+          scroll={false}
+          className="inline-flex w-fit items-center gap-1.5 rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold transition hover:border-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground"
+        >
+          Ver el outfit de mañana <span aria-hidden="true">→</span>
+        </Link>
+      )}
     </section>
   );
-}
-
-// "2026-11-20" => "viernes 20". Mediodía UTC para que ningún huso horario
-// cambie el día.
-function nombreDelDia(fecha) {
-  return new Intl.DateTimeFormat("es-AR", {
-    weekday: "long",
-    day: "numeric",
-    timeZone: "UTC",
-  }).format(new Date(`${fecha}T12:00:00Z`));
 }

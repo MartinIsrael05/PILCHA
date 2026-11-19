@@ -5,7 +5,13 @@ import Alertas from "@/components/clima/Alertas";
 
 // conInvitacion: en /hoy la invitación a cargar el placard ya se muestra
 // aparte, así que ahí se oculta el pie.
-export default function RecomendacionGenerica({ recomendacion, logueado, conInvitacion = true }) {
+// paraManana: cambia el título cuando se mira el día siguiente.
+export default function RecomendacionGenerica({
+  recomendacion,
+  logueado,
+  conInvitacion = true,
+  paraManana = false,
+}) {
   const { tempEfectiva, nivel, textoGenerico, alertas } = recomendacion;
 
   // Fondo con el acento de la paleta del día (variables CSS que define
@@ -18,7 +24,7 @@ export default function RecomendacionGenerica({ recomendacion, logueado, conInvi
           Para vos se siente como {Math.round(tempEfectiva)}° · {nivel.nombre}
         </p>
         <h3 className="text-sm font-semibold uppercase tracking-widest opacity-80">
-          Qué ponerte hoy
+          Qué ponerte {paraManana ? "mañana" : "hoy"}
         </h3>
       </header>
 

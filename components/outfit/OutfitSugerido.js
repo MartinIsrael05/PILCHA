@@ -8,7 +8,8 @@ import ManiquiOutfit from "@/components/outfit/ManiquiOutfit";
 
 // children: acciones que van al pie de la tarjeta (por ejemplo "Usé este outfit").
 // paleta (opcional): se muestra como chip arriba a la derecha.
-export default function OutfitSugerido({ recomendacion, paleta, children }) {
+// paraManana: cambia el título cuando se mira el outfit de mañana.
+export default function OutfitSugerido({ recomendacion, paleta, paraManana = false, children }) {
   const { tempEfectiva, nivel, outfit, alertas } = recomendacion;
   const faltan = outfit.filter((item) => !item.prenda && !item.opcional);
   const climaPaleta = paleta ? CLIMAS[paleta.clima] : null;
@@ -23,7 +24,7 @@ export default function OutfitSugerido({ recomendacion, paleta, children }) {
             Para vos se siente como {Math.round(tempEfectiva)}° · {nivel.nombre}
           </p>
           <h2 className="text-sm font-semibold uppercase tracking-widest opacity-80">
-            Tu outfit de hoy
+            Tu outfit de {paraManana ? "mañana" : "hoy"}
           </h2>
         </div>
         {paleta && (
