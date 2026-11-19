@@ -1,11 +1,10 @@
-// Outfit armado con prendas del placard. Server Component: solo dibuja el
-// resultado de recomendar(). Si una categoría no tiene prenda que sirva,
-// muestra el texto genérico de esa categoría.
+// Outfit armado con prendas del placard. Server Component: dibuja el
+// resultado de recomendar() con un maniquí visual + lista textual + alertas.
+// En escritorio queda a 2 columnas: maniquí a la izquierda, resto a la derecha.
 import Link from "next/link";
-import Image from "next/image";
 import Alertas from "@/components/clima/Alertas";
-import { CATEGORIAS } from "@/lib/prendas";
 import { CLIMAS } from "@/lib/paletas";
+import ManiquiOutfit from "@/components/outfit/ManiquiOutfit";
 
 // children: acciones que van al pie de la tarjeta (por ejemplo "Usé este outfit").
 // paleta (opcional): se muestra como chip arriba a la derecha.
@@ -20,7 +19,6 @@ export default function OutfitSugerido({ recomendacion, paleta, children }) {
     <article className="flex flex-col gap-5 rounded-2xl bg-[var(--tema-acento,var(--foreground))] p-5 text-[var(--tema-acento-texto,var(--background))] sm:p-6">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex flex-col gap-1">
-          {/* opacity-80 en vez de 70 para mejor contraste WCAG */}
           <p className="text-sm font-medium opacity-80">
             Para vos se siente como {Math.round(tempEfectiva)}° · {nivel.nombre}
           </p>
@@ -39,74 +37,31 @@ export default function OutfitSugerido({ recomendacion, paleta, children }) {
         )}
       </header>
 
-      <ul className="grid gap-3 sm:grid-cols-2">
-        {outfit.map((item) => (
-          <li
-            key={item.categoria}
-            className="flex items-center gap-3 rounded-xl bg-background p-3 text-foreground"
-          >
-            <Miniatura prenda={item.prenda} />
-            <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-wide text-muted">
-                {CATEGORIAS[item.categoria]}
-                {item.opcional && " · opcional"}
-              </p>
-              {item.prenda ? (
-                <Link
-                  href={`/placard/${item.prenda.id}`}
-                  className="font-semibold hover:underline"
-                >
-                  {item.prenda.nombre}
-                </Link>
-              ) : (
-                <p className="text-sm text-muted">
-                  No tenés nada en tu placard para esto. Buscá {item.texto}.
-                </p>
-              )}
-              {item.nota && <p className="text-sm text-muted">{item.nota}</p>}
-            </div>
-          </li>
-        ))}
-      </ul>
+      {/* Dos columnas en escritorio: maniquí visual + lista textual. En
+          mobile se apilan. */}
+      <div className="grid gap-5 sm:grid-cols-[minmax(0,18rem)_1fr]">
+        <div className="rounded-xl bg-background p-3 text-foreground">
+          <ManiquiOutfit recomendacion={recomendacion} />
+        </div>
 
-      <div className="rounded-xl bg-background p-1 text-foreground empty:hidden">
-        <Alertas alertas={alertas} />
+        <div className="flex flex-col gap-4">
+          <div className="rounded-xl bg-background p-1 text-foreground empty:hidden">
+            <Alertas alertas={alertas} />
+          </div>
+
+          {faltan.length > 0 && (
+            <p className="text-sm opacity-90">
+              Te faltan prendas para completar el outfit.{" "}
+              <Link href="/placard/nueva" className="font-semibold underline">
+                Cargá más ropa
+              </Link>
+              .
+            </p>
+          )}
+
+          {children}
+        </div>
       </div>
-
-      {faltan.length > 0 && (
-        <p className="text-sm opacity-90">
-          Te faltan prendas para completar el outfit.{" "}
-          <Link href="/placard/nueva" className="font-semibold underline">
-            Cargá más ropa
-          </Link>
-          .
-        </p>
-      )}
-
-      {children}
     </article>
-  );
-}
-
-// Foto de la prenda o, si no tiene, un cuadradito con su color.
-function Miniatura({ prenda }) {
-  if (!prenda) {
-    return (
-      <div
-        aria-hidden="true"
-        className="size-14 shrink-0 rounded-lg border border-dashed border-border"
-      />
-    );
-  }
-  return (
-    <div
-      className="relative size-14 shrink-0 overflow-hidden rounded-lg border border-border"
-      style={{ backgroundColor: prenda.color.hex }}
-      title={prenda.color.nombre}
-    >
-      {prenda.imagenUrl && (
-        <Image src={prenda.imagenUrl} alt="" fill sizes="56px" className="object-cover" />
-      )}
-    </div>
   );
 }
