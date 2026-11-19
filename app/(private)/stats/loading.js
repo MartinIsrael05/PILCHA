@@ -1,7 +1,9 @@
+import CargandoPercha from "@/components/ui/CargandoPercha";
+
 export default function Loading() {
   return (
     <section className="flex flex-col gap-6" aria-busy="true">
-      <p className="sr-only">Cargando tus estadísticas…</p>
+      <CargandoPercha texto="Cargando tus estadísticas…" />
       <div className="h-9 w-48 animate-pulse rounded bg-border" />
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {Array.from({ length: 4 }, (_, i) => (
