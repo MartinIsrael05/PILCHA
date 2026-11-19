@@ -23,12 +23,7 @@ export default function CalificarInline({ outfitId }) {
   }
 
   return (
-    <form
-      action={formAction}
-      // Evita que el click burbujee al Link de la card.
-      onClick={(e) => e.stopPropagation()}
-      className="flex flex-col gap-2"
-    >
+    <form action={formAction} className="flex flex-col gap-2">
       <p className="text-sm font-medium">¿Cómo te fue?</p>
       <div className="flex flex-wrap gap-2">
         {Object.entries(CALIFICACIONES).map(([clave, c]) => (
