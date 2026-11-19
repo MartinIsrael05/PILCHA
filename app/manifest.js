@@ -8,7 +8,10 @@ export default function manifest() {
     description:
       "Te armamos el outfit del día con la ropa de tu placard según el clima de donde estás.",
     lang: "es-AR",
-    start_url: "/hoy",
+    // La portada ya redirige a /hoy cuando hay sesión, así que abrir la PWA
+    // desde el ícono funciona tanto si el usuario está logueado como si no:
+    // si no lo está, ve la landing con el clima del día.
+    start_url: "/",
     display: "standalone",
     background_color: "#ffffff",
     theme_color: "#171717",

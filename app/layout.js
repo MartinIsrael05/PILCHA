@@ -4,6 +4,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import UserMenu from "@/components/auth/UserMenu";
+import { BarraNavEscritorio, BarraNavMobile } from "@/components/ui/BarraNav";
+import Footer from "@/components/ui/Footer";
 
 // Pisa el tema (claro/oscuro) antes de que React pinte. Así no se ve el
 // flash blanco si el usuario guardó "oscuro". Es chico y se inyecta inline.
@@ -45,10 +47,8 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    // suppressHydrationWarning: el boot script (líneas abajo) escribe
-    // data-theme antes de que React hidrate. React ve ese atributo en el DOM
-    // pero no en su HTML server (que no conoce el localStorage del usuario),
-    // y marca el diff. Solo afecta este atributo del <html>, no a los hijos.
+    // suppressHydrationWarning: el boot script escribe data-theme antes de
+    // que React hidrate. Suprime solo el diff del <html>, no de los hijos.
     <html
       lang="es"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
@@ -57,30 +57,37 @@ export default function RootLayout({ children }) {
       <body className="flex min-h-full flex-col">
         {/* beforeInteractive: corre antes del primer render. Previene el flash. */}
         <Script id="boot-tema" strategy="beforeInteractive">{BOOT_TEMA}</Script>
-        {/* AuthProvider es cliente, pero sus children siguen siendo Server Components */}
         <AuthProvider>
           {/* Link oculto que aparece al enfocar con tab: accesibilidad. */}
           <a href="#contenido" className="skip-link">
             Saltar al contenido
           </a>
-          <header className="relative border-b border-border">
-            <div className="mx-auto flex max-w-5xl items-center justify-between gap-x-4 px-4 py-4">
-              <Link href="/" className="text-xl font-black tracking-widest">
+
+          {/* Header: logo + perfil/tema/salir. En escritorio, una fila aparte
+              debajo con la navegación. En mobile, la nav vive en el pie. */}
+          <header className="sticky top-0 z-20 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/70">
+            <div className="mx-auto flex max-w-5xl items-center justify-between gap-x-4 px-4 py-3">
+              <Link
+                href="/"
+                className="flex items-center gap-2 text-xl font-black tracking-widest focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground"
+              >
                 PILCHA
               </Link>
               <UserMenu />
             </div>
+            <div className="mx-auto max-w-5xl px-2 pb-2">
+              <BarraNavEscritorio />
+            </div>
           </header>
 
-          <main id="contenido" className="mx-auto w-full max-w-5xl flex-1 px-4 py-10">
+          <main id="contenido" className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:py-10">
             {children}
           </main>
 
-          <footer className="border-t border-border">
-            <p className="mx-auto max-w-5xl px-4 py-6 text-sm text-muted">
-              PILCHA · TP Final de Programación Multimedial III · UMAI
-            </p>
-          </footer>
+          <Footer />
+
+          {/* Barra inferior fija de navegación en mobile. */}
+          <BarraNavMobile />
         </AuthProvider>
       </body>
     </html>

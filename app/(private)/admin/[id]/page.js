@@ -4,6 +4,8 @@ import { getPaleta, getPaletasDeClima } from "@/lib/data/paletas";
 import { editarPaleta } from "@/lib/actions/paletas";
 import PaletaForm from "@/components/admin/PaletaForm";
 import EliminarPaleta from "@/components/admin/EliminarPaleta";
+import PageHeader from "@/components/ui/PageHeader";
+import { CLIMAS } from "@/lib/paletas";
 
 export async function generateMetadata({ params }) {
   const { id } = await params;
@@ -28,7 +30,11 @@ export default async function EditarPaletaPage({ params }) {
 
   return (
     <section className="flex flex-col gap-8">
-      <h1 className="text-3xl font-bold">Editar {paleta.nombre}</h1>
+      <PageHeader
+        titulo={`Editar ${paleta.nombre}`}
+        descripcion={`Paleta para días ${CLIMAS[paleta.clima]?.frase ?? paleta.clima}.`}
+        volver={{ href: "/admin", texto: "Volver al panel" }}
+      />
       <PaletaForm accion={accion} paleta={paleta} />
       <div className="max-w-xl border-t border-border pt-6">
         <EliminarPaleta

@@ -21,13 +21,14 @@ const ESTADO_INICIAL = { errores: {}, mensaje: null };
 const COLORES_NUEVA = ["#1d3557", "#457b9d", "#a8dadc", "#f1faee"];
 
 // `accion`: crearPaleta, o editarPaleta con el id ya fijado con bind.
-export default function PaletaForm({ accion, paleta = null }) {
+// `climaInicial`: cuando se abre desde "+ Crear paleta para X" en /admin.
+export default function PaletaForm({ accion, paleta = null, climaInicial = null }) {
   const [estado, formAction, pendiente] = useActionState(
     accion,
     ESTADO_INICIAL,
   );
   const [valores, setValores] = useState({
-    clima: paleta?.clima ?? "",
+    clima: paleta?.clima ?? climaInicial ?? "",
     nombre: paleta?.nombre ?? "",
     armonia: paleta?.armonia ?? "",
     descripcion: paleta?.descripcion ?? "",

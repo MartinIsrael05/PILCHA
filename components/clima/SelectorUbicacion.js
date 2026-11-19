@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { redondearCoordenada } from "@/lib/ubicacion";
+import { reverseGeocode } from "@/lib/clima";
 import Button from "@/components/ui/Button";
 import BuscadorCiudad from "@/components/clima/BuscadorCiudad";
 
@@ -56,9 +57,13 @@ export default function SelectorUbicacion({ ubicacionActual }) {
     setLocalizando(true);
     setMensaje(null);
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        // Pedimos el nombre real de la ciudad (reverse geocoding). Si falla,
+        // usamos "Tu ubicación" como antes.
+        const nombre = (await reverseGeocode(latitude, longitude)) ?? "Tu ubicación";
         setLocalizando(false);
-        irA({ nombre: "Tu ubicación", lat: pos.coords.latitude, lon: pos.coords.longitude });
+        irA({ nombre, lat: latitude, lon: longitude });
       },
       (error) => {
         setLocalizando(false);

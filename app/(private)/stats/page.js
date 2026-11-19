@@ -11,6 +11,8 @@ import {
 import Figura from "@/components/stats/Figura";
 import BarrasHorizontales from "@/components/stats/BarrasHorizontales";
 import GraficoCalificaciones from "@/components/stats/GraficoCalificaciones";
+import PageHeader from "@/components/ui/PageHeader";
+import VacioCard from "@/components/ui/VacioCard";
 
 export const metadata = {
   title: "Estadísticas",
@@ -32,34 +34,23 @@ export default async function StatsPage() {
 
   if (prendas.length === 0) {
     return (
-      <section className="flex flex-col gap-6">
-        <h1 className="text-3xl font-bold">Estadísticas</h1>
-        <div className="flex flex-col items-start gap-3 rounded-2xl border border-dashed border-border p-8">
-          <h2 className="text-xl font-semibold">
-            Todavía no hay nada para medir
-          </h2>
-          <p className="text-muted">
-            Cargá tu ropa y empezá a usar PILCHA para ver tus números.
-          </p>
-          <Link
-            href="/placard/nueva"
-            className="rounded-full bg-foreground px-5 py-2.5 font-medium text-background"
-          >
-            Cargar una prenda
-          </Link>
-        </div>
+      <section className="flex flex-col gap-8">
+        <PageHeader titulo="Estadísticas" />
+        <VacioCard
+          titulo="Todavía no hay nada para medir"
+          descripcion="Cargá tu ropa y empezá a usar PILCHA para ver tus números."
+          cta={{ href: "/placard/nueva", texto: "Cargar una prenda" }}
+        />
       </section>
     );
   }
 
   return (
-    <section className="flex flex-col gap-6">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-3xl font-bold">Estadísticas</h1>
-        <p className="text-muted">
-          Cómo usás tu placard y cómo te fue con el clima.
-        </p>
-      </div>
+    <section className="flex flex-col gap-8">
+      <PageHeader
+        titulo="Estadísticas"
+        descripcion="Cómo usás tu placard y cómo te fue con el clima."
+      />
 
       {/* Números sueltos: no hace falta un gráfico para un solo dato */}
       <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">

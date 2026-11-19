@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth/session";
 import { getOutfit } from "@/lib/data/outfits";
@@ -8,6 +7,7 @@ import { describirCodigo, nivelUV } from "@/lib/clima";
 import { formatearFecha } from "@/lib/historial";
 import PrendasDelOutfit from "@/components/historial/PrendasDelOutfit";
 import CalificarOutfit from "@/components/outfit/CalificarOutfit";
+import PageHeader from "@/components/ui/PageHeader";
 
 export async function generateMetadata({ params }) {
   const { id } = await params;
@@ -32,28 +32,21 @@ export default async function OutfitPage({ params }) {
 
   return (
     <article className="flex flex-col gap-8">
-      <Link href="/historial" className="text-sm text-muted hover:underline">
-        ← Volver al historial
-      </Link>
-
-      <header className="flex flex-col gap-1">
-        <h1 className="text-3xl font-bold first-letter:uppercase">
-          {formatearFecha(outfit.fecha, { conAnio: true })}
-        </h1>
-        <p className="text-muted">
-          <span aria-hidden="true">{icono}</span> {texto} en {clima.ciudad}
-        </p>
-      </header>
+      <PageHeader
+        titulo={formatearFecha(outfit.fecha, { conAnio: true })}
+        descripcion={`${icono} ${texto} en ${clima.ciudad}`}
+        volver={{ href: "/historial", texto: "Volver al historial" }}
+      />
 
       <section aria-labelledby="titulo-prendas" className="flex flex-col gap-3">
-        <h2 id="titulo-prendas" className="font-semibold">
+        <h2 id="titulo-prendas" className="text-lg font-semibold border-b border-border pb-2">
           Lo que te pusiste
         </h2>
         <PrendasDelOutfit prendaIds={outfit.prendaIds} prendasPorId={prendasPorId} grande />
       </section>
 
       <section aria-labelledby="titulo-clima" className="flex flex-col gap-3">
-        <h2 id="titulo-clima" className="font-semibold">
+        <h2 id="titulo-clima" className="text-lg font-semibold border-b border-border pb-2">
           El clima de ese día
         </h2>
         <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -67,7 +60,12 @@ export default async function OutfitPage({ params }) {
         </dl>
       </section>
 
-      <CalificarOutfit accion={accion} calificacion={outfit.calificacion} nota={outfit.nota} />
+      <section aria-labelledby="titulo-calificar" className="flex flex-col gap-3">
+        <h2 id="titulo-calificar" className="text-lg font-semibold border-b border-border pb-2">
+          ¿Cómo te fue?
+        </h2>
+        <CalificarOutfit accion={accion} calificacion={outfit.calificacion} nota={outfit.nota} />
+      </section>
     </article>
   );
 }
