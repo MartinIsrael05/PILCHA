@@ -42,3 +42,7 @@ next-env.d.ts
 
 # el ejemplo de variables sí se versiona
 !.env.example
+
+# capturas sueltas que quedan en la raíz al probar en el navegador
+.playwright-mcp/
+/*.png
