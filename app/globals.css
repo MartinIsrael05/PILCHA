@@ -61,6 +61,72 @@
   }
 }
 
+/* Animaciones de la landing (ver components/landing/). */
+
+/* Entrada por scroll: parte invisible y levemente abajo, aparece al activar. */
+.reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+  will-change: opacity, transform;
+}
+.reveal-on {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Gradiente que se mueve lento. Lo usa el hero. */
+@keyframes pilcha-gradient-move {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.pilcha-gradient {
+  background-image: linear-gradient(120deg, #f2a65a, #3d9a9b, #4f7cac, #e34948, #f2a65a);
+  background-size: 300% 300%;
+  animation: pilcha-gradient-move 18s ease-in-out infinite;
+}
+
+/* Variante para usar como texto: el gradiente se recorta a la silueta de
+   las letras. background-clip: text requiere color transparente. */
+.pilcha-gradient-text {
+  background-image: linear-gradient(120deg, #e34948, #f2a65a, #3d9a9b, #4f7cac, #e34948);
+  background-size: 300% 300%;
+  animation: pilcha-gradient-move 14s ease-in-out infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Grilla de puntos sutil que da profundidad detrás del hero. */
+.pilcha-dots {
+  background-image: radial-gradient(circle, var(--border) 1px, transparent 1px);
+  background-size: 22px 22px;
+  background-position: 0 0;
+  mask-image: radial-gradient(ellipse at top, black 20%, transparent 70%);
+  -webkit-mask-image: radial-gradient(ellipse at top, black 20%, transparent 70%);
+}
+
+/* Hover sutil para tarjetas de feature: elevación con transición suave. */
+.hover-elevar {
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.hover-elevar:hover {
+  transform: translateY(-4px);
+}
+
+/* Si el usuario prefiere menos animación, apagamos los movimientos con
+   amplitud notable (gradiente y hover-elevar). La media query global que
+   reduce `animation-duration` ya corta la animación del gradiente, pero
+   pisamos también transform para evitar movimientos muy chicos. */
+@media (prefers-reduced-motion: reduce) {
+  .pilcha-gradient {
+    animation: none;
+  }
+  .hover-elevar:hover {
+    transform: none;
+  }
+}
+
 /* Link invisible que aparece al enfocar con tab: "saltar al contenido". */
 .skip-link {
   position: absolute;
