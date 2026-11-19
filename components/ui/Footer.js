@@ -1,5 +1,6 @@
 // Footer del sitio. Server Component: solo muestra texto y links.
 import Link from "next/link";
+import Logo from "./Logo";
 
 const SECCIONES = [
   {
@@ -48,7 +49,7 @@ export default function Footer() {
       <div className="mx-auto max-w-6xl px-4 py-10">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div className="flex flex-col gap-2 lg:col-span-1">
-            <p className="text-lg font-black tracking-widest">PILCHA</p>
+            <Logo id="logo-footer" className="h-7 w-auto self-start" />
             <p className="max-w-xs text-sm text-muted">
               Qué ponerte hoy, armado con la ropa de tu placard y el clima de
               donde estás.

@@ -3,6 +3,7 @@
 import { ImageResponse } from "next/og";
 import { getPaletasDeClima } from "@/lib/data/paletas";
 import { CLIMAS } from "@/lib/paletas";
+import { COLORES, CUERPO, GANCHO, GROSOR, LETRAS, VIEWBOX_COMPLETO } from "@/lib/logo";
 
 export const alt = "Paleta de colores de PILCHA";
 export const size = { width: 1200, height: 630 };
@@ -46,7 +47,20 @@ export default async function Image({ params }) {
             <div style={{ fontSize: 28, opacity: 0.7 }}>{`Paleta ${CLIMAS[clima]?.frase ?? ""}`}</div>
             <div style={{ fontSize: 64, fontWeight: 700 }}>{paleta?.nombre ?? "PILCHA"}</div>
           </div>
-          <div style={{ fontSize: 40, fontWeight: 900, letterSpacing: 8 }}>PILCHA</div>
+          {/* Mismo logo que el header, con colores fijos: acá no hay CSS. */}
+          <svg
+            viewBox={VIEWBOX_COMPLETO}
+            width={276}
+            height={52}
+            fill="none"
+            strokeWidth={GROSOR}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d={CUERPO} stroke={COLORES.calido2} />
+            <path d={GANCHO} stroke={COLORES.gancho} />
+            <path d={LETRAS} stroke="#ffffff" />
+          </svg>
         </div>
       </div>
     ),
