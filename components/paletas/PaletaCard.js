@@ -10,7 +10,7 @@ export default function PaletaCard({ paleta }) {
     <li>
       <Link
         href={`/paletas/${paleta.clima}`}
-        className="group flex h-full flex-col gap-3 rounded-2xl border border-border p-4 transition hover:border-foreground focus-visible:outline-2 focus-visible:outline-foreground"
+        className="group flex h-full flex-col gap-3 rounded-2xl border border-border bg-background p-4 transition hover:border-foreground focus-visible:outline-2 focus-visible:outline-foreground"
       >
         <PaletaSwatch colores={paleta.colores} conHex={false} />
         <div className="flex flex-col gap-1">

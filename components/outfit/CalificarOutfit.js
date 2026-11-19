@@ -21,7 +21,7 @@ export default function CalificarOutfit({ accion, calificacion, nota }) {
           {Object.entries(CALIFICACIONES).map(([clave, c]) => (
             <label
               key={clave}
-              className="flex cursor-pointer flex-col items-center gap-1 rounded-xl border border-border p-3 text-center has-checked:border-foreground has-checked:bg-border/40 has-focus-visible:outline-2 has-focus-visible:outline-foreground"
+              className="flex cursor-pointer flex-col items-center gap-1 rounded-xl border border-border bg-background p-3 text-center has-checked:border-foreground has-checked:bg-border/40 has-focus-visible:outline-2 has-focus-visible:outline-foreground"
             >
               <input
                 type="radio"

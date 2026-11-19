@@ -12,7 +12,7 @@ export default function Figura({
   return (
     <figure
       aria-labelledby={`${id}-titulo`}
-      className="flex flex-col gap-4 rounded-2xl border border-border p-5"
+      className="flex flex-col gap-4 rounded-2xl border border-border bg-background p-5"
     >
       <div>
         <h2 id={`${id}-titulo`} className="text-lg font-semibold">

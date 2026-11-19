@@ -52,7 +52,7 @@ export default function UserMenu() {
       <Link
         href="/perfil"
         aria-label={`Mi perfil (${nombre})`}
-        className="hidden items-center gap-2 rounded-full border border-border px-2 py-1 text-sm font-medium transition hover:bg-border/40 md:flex"
+        className="hidden items-center gap-2 rounded-full border border-border bg-background px-2 py-1 text-sm font-medium transition hover:bg-border/40 md:flex"
       >
         <span
           aria-hidden="true"
@@ -81,7 +81,7 @@ export default function UserMenu() {
         type="button"
         onClick={salir}
         aria-label="Salir"
-        className="flex size-10 items-center justify-center rounded-full border border-border transition hover:bg-border/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground md:hidden"
+        className="flex size-10 items-center justify-center rounded-full border border-border bg-background transition hover:bg-border/40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground md:hidden"
       >
         <IconoNav nombre="salir" className="size-5" />
       </button>

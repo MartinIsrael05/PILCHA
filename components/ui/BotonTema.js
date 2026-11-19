@@ -135,7 +135,7 @@ export default function BotonTema() {
       onClick={cambiar}
       aria-label={`Tema: ${actual.nombre}. Cambiar.`}
       title={`Tema: ${actual.nombre}`}
-      className="flex size-9 items-center justify-center rounded-full border border-border text-base transition hover:bg-border/40 hover:border-[var(--marca-primario)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--marca-primario)]"
+      className="flex size-9 items-center justify-center rounded-full border border-border bg-background text-base transition hover:bg-border/40 hover:border-[var(--marca-primario)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--marca-primario)]"
     >
       <span aria-hidden="true">{actual.icono}</span>
     </button>

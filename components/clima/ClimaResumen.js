@@ -6,7 +6,7 @@ export default function ClimaResumen({ clima, actual, desde, hasta }) {
   const { texto, icono } = describirCodigo(clima.codigo, clima.esDeDia);
 
   return (
-    <article className="flex flex-col gap-6 rounded-2xl border border-border p-5 sm:p-6">
+    <article className="flex flex-col gap-6 rounded-2xl border border-border bg-background p-5 sm:p-6">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
           <p className="text-sm text-muted">

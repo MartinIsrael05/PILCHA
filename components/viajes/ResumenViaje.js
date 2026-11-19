@@ -52,10 +52,10 @@ export default function ResumenViaje({ viaje, prendasPorId }) {
           {valija.map(({ prendaId, prenda, fechas }) => (
             <li
               key={prendaId}
-              className="flex items-center gap-3 rounded-xl border border-border p-3"
+              className="flex items-center gap-3 rounded-xl border border-border bg-background p-3"
             >
               <span
-                className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border"
+                className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-border bg-background"
                 style={{ backgroundColor: prenda?.color.hex }}
               >
                 {prenda && (
@@ -114,7 +114,7 @@ export default function ResumenViaje({ viaje, prendasPorId }) {
             return (
               <li
                 key={d.fecha}
-                className="flex flex-col gap-2 rounded-xl border border-border p-3 sm:flex-row sm:items-center sm:gap-4"
+                className="flex flex-col gap-2 rounded-xl border border-border bg-background p-3 sm:flex-row sm:items-center sm:gap-4"
               >
                 <div className="sm:w-48 sm:shrink-0">
                   <p className="font-medium first-letter:uppercase">

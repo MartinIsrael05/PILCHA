@@ -13,7 +13,7 @@ export default function OutfitItem({ outfit, prendasPorId }) {
   const calificacion = CALIFICACIONES[outfit.calificacion];
 
   return (
-    <li className="flex flex-col gap-3 rounded-2xl border border-border p-4 transition sm:p-5">
+    <li className="flex flex-col gap-3 rounded-2xl border border-border bg-background p-4 transition sm:p-5">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <Link

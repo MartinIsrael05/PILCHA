@@ -73,7 +73,7 @@ export default async function AdminPage() {
             {paletasClima.length === 0 ? (
               <Link
                 href={`/admin/nueva?clima=${clave}`}
-                className="rounded-2xl border border-dashed border-border p-5 text-sm text-muted hover:border-foreground hover:text-foreground"
+                className="rounded-2xl border border-dashed border-border bg-background p-5 text-sm text-muted hover:border-foreground hover:text-foreground"
               >
                 + Crear paleta para {clima.nombre}
               </Link>

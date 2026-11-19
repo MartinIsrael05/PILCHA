@@ -22,7 +22,7 @@ export default function BotonActivar({ id, activa }) {
       type="button"
       onClick={() => startTransition(() => activarPaleta(id))}
       disabled={pendiente}
-      className="rounded-full border border-border px-3 py-1 text-xs font-medium transition hover:border-foreground hover:bg-border/40 disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground"
+      className="rounded-full border border-border bg-background px-3 py-1 text-xs font-medium transition hover:border-foreground hover:bg-border/40 disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground"
     >
       {pendiente ? "Activando…" : "Usar esta"}
     </button>

@@ -8,11 +8,11 @@ export default function PrendasDelOutfit({ prendaIds, prendasPorId, grande = fal
         return (
           <li
             key={id}
-            className="flex items-center gap-2 rounded-full border border-border px-3 py-1"
+            className="flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1"
           >
             <span
               aria-hidden="true"
-              className="size-3 shrink-0 rounded-full border border-border"
+              className="size-3 shrink-0 rounded-full border border-border bg-background"
               style={{ backgroundColor: prenda?.color.hex ?? "transparent" }}
             />
             {prenda ? prenda.nombre : <span className="text-muted">Prenda eliminada</span>}

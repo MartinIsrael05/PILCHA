@@ -64,7 +64,7 @@ export default async function PaletaClimaPage({ params }) {
             <PaletaSwatch colores={paleta.colores} tamaño="grande" />
 
             {armonia && (
-              <div className="max-w-2xl rounded-2xl border border-border p-5">
+              <div className="max-w-2xl rounded-2xl border border-border bg-background p-5">
                 <h2 className="font-semibold">Armonía {armonia.nombre.toLowerCase()}</h2>
                 <p className="text-muted">{armonia.explicacion}</p>
               </div>

@@ -1,10 +1,12 @@
 "use client"; // Lee el tema desde el DOM (data-theme + matchMedia).
 
-// Fondo decorativo global: un sol tibio en modo claro y un cielo nocturno con
-// estrellas en modo oscuro. Fixed, detrás de todo, pointer-events:none.
+// Fondo decorativo global. En la landing: un sol tibio en modo claro y un
+// cielo nocturno con estrellas en modo oscuro. En el resto: un degradé suave.
+// Fixed, detrás de todo, pointer-events:none.
 // Usa GSAP para animar el sol (rayos pulsando) y las estrellas (titilando).
 // Respeta prefers-reduced-motion.
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { usePathname } from "next/navigation";
 import gsap from "gsap";
 
 // --- Suscripción al tema (claro/oscuro) --------------------------------------
@@ -35,16 +37,43 @@ export default function FondoDecorativo() {
   // El tercer parámetro (fallback del servidor) es null: el fondo no aparece
   // en SSR. Evita mismatch de hidratación.
   const tema = useSyncExternalStore(suscribirTema, leerTema, () => null);
+  const pathname = usePathname();
 
   if (!tema) return null;
+
+  // El sol y el cielo con estrellas son para la landing, donde suman a la
+  // estética. En las pantallas de uso (/hoy, placard, etc.) quedarían detrás
+  // de botones y selectores, así que ahí va solo un degradé muy suave.
+  const esLanding = pathname === "/";
 
   return (
     <div
       aria-hidden="true"
       className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
     >
-      {tema === "dark" ? <CieloNocturno /> : <SolDiurno />}
+      {!esLanding ? (
+        <DegradeSuave tema={tema} />
+      ) : tema === "dark" ? (
+        <CieloNocturno />
+      ) : (
+        <SolDiurno />
+      )}
     </div>
+  );
+}
+
+// --- Degradé suave -----------------------------------------------------------
+// Para las pantallas de uso: un brillo tenue en una esquina, sin formas ni
+// animación. Le da calidez al fondo sin competir con el contenido.
+function DegradeSuave({ tema }) {
+  const color = tema === "dark" ? "var(--marca-terciario)" : "var(--marca-secundario)";
+  return (
+    <div
+      className="absolute inset-0"
+      style={{
+        background: `radial-gradient(ellipse 60% 45% at 100% 0%, color-mix(in srgb, ${color} 12%, transparent), transparent 70%)`,
+      }}
+    />
   );
 }
 
