@@ -75,7 +75,7 @@ export function BarraNavMobile() {
       aria-label="Secciones"
       className="sticky bottom-0 z-30 border-t border-border bg-background pb-[env(safe-area-inset-bottom)] md:hidden"
     >
-      <ul className="mx-auto flex max-w-5xl gap-1 overflow-x-auto px-2 py-2">
+      <ul className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-2 py-2">
         {conPerfil.map((item) => {
           const esActiva = activa(pathname, item.href);
           return (
