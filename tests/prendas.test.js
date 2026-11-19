@@ -1,7 +1,20 @@
 // Pruebas de lib/prendas.js. Correr con: npm test
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { validarPrenda, validarFoto, filtrarPrendas } from "../lib/prendas.js";
+import { validarPrenda, validarFoto, filtrarPrendas, detectarTipoImagen } from "../lib/prendas.js";
+
+test("detectarTipoImagen reconoce JPG, PNG, WebP y rechaza lo demás", () => {
+  // Magic bytes mínimos (12) con el prefijo de cada formato.
+  const jpg = new Uint8Array([0xff, 0xd8, 0xff, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+  const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0]);
+  const webp = new Uint8Array([0x52, 0x49, 0x46, 0x46, 0, 0, 0, 0, 0x57, 0x45, 0x42, 0x50]);
+  const pdf = new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d, 0, 0, 0, 0, 0, 0, 0]);
+  assert.equal(detectarTipoImagen(jpg), "image/jpeg");
+  assert.equal(detectarTipoImagen(png), "image/png");
+  assert.equal(detectarTipoImagen(webp), "image/webp");
+  assert.equal(detectarTipoImagen(pdf), null);
+  assert.equal(detectarTipoImagen(new Uint8Array(3)), null); // muy corto
+});
 
 const valida = {
   nombre: "  Remera blanca ",
