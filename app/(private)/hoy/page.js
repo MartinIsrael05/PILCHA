@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { requireUser } from "@/lib/auth/session";
 import { leerHorario, leerUbicacion } from "@/lib/ubicacion";
 import SelectorUbicacion from "@/components/clima/SelectorUbicacion";
-import SelectorHorario from "@/components/clima/SelectorHorario";
+import HorarioDelDia, { HorarioSkeleton } from "@/components/clima/HorarioDelDia";
 import ClimaSkeleton from "@/components/clima/ClimaSkeleton";
 import OutfitDelDia from "@/components/outfit/OutfitDelDia";
 
@@ -24,11 +24,10 @@ export default async function HoyPage({ searchParams }) {
 
   const saludo = user.nombre ? `Hola, ${user.nombre.split(" ")[0]}` : "Hola";
 
-  // Header compacto en una sola fila: saludo a la izquierda, selectores a
-  // la derecha. Sin descripción larga: la ocupa el outfit abajo.
+  // Header compacto con el saludo. Debajo: ubicación, horario y outfit.
   return (
     <section className="flex flex-col gap-6">
-      <header className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-4">
+      <header className="border-b border-border pb-4">
         <div className="min-w-0">
           <p className="text-xs font-semibold uppercase tracking-widest text-muted">
             Hoy
@@ -37,14 +36,17 @@ export default async function HoyPage({ searchParams }) {
             {saludo}
           </h1>
         </div>
-        {ubicacion && (
-          <div className="flex shrink-0 items-center">
-            <SelectorHorario desde={desde} hasta={hasta} />
-          </div>
-        )}
       </header>
 
       <SelectorUbicacion ubicacionActual={ubicacion} />
+
+      {/* Sin key: al cambiar el horario, Next mantiene el selector a la vista
+          mientras carga el nuevo pronóstico (el outfit sí muestra skeleton). */}
+      {ubicacion && (
+        <Suspense fallback={<HorarioSkeleton />}>
+          <HorarioDelDia ubicacion={ubicacion} desde={desde} hasta={hasta} />
+        </Suspense>
+      )}
 
       {ubicacion && (
         <Suspense
