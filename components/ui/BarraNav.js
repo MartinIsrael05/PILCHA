@@ -46,10 +46,10 @@ export function BarraNavEscritorio() {
           key={item.href}
           href={item.href}
           aria-current={activa(pathname, item.href) ? "page" : undefined}
-          className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition hover:bg-border/60 ${
+          className={`inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition ${
             activa(pathname, item.href)
-              ? "bg-foreground text-background hover:bg-foreground"
-              : "text-foreground"
+              ? "bg-[var(--marca-primario)] text-white shadow-sm"
+              : "text-foreground hover:bg-[var(--marca-primario)]/10 hover:text-[var(--marca-primario)]"
           }`}
         >
           <IconoNav nombre={item.icono} className="size-4" />
@@ -85,7 +85,7 @@ export function BarraNavMobile() {
                 aria-current={esActiva ? "page" : undefined}
                 className={`flex flex-col items-center gap-1 rounded-xl px-2 py-1.5 text-xs font-medium transition ${
                   esActiva
-                    ? "text-foreground"
+                    ? "text-[var(--marca-primario)]"
                     : "text-muted hover:text-foreground"
                 }`}
               >

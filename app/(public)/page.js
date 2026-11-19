@@ -66,13 +66,13 @@ function Hero() {
             <div data-hero-item className="flex flex-wrap items-center gap-3 pt-2">
               <Link
                 href="/registro"
-                className="rounded-full bg-foreground px-6 py-3 font-medium text-background shadow-sm transition hover:opacity-90 hover:shadow-md"
+                className="rounded-full bg-[var(--marca-primario)] px-6 py-3 font-medium text-white shadow-sm transition hover:brightness-110 hover:shadow-md"
               >
                 Crear cuenta gratis
               </Link>
               <Link
                 href="/login"
-                className="rounded-full border border-border px-6 py-3 font-medium hover:bg-border/40"
+                className="rounded-full border border-border px-6 py-3 font-medium transition hover:border-[var(--marca-primario)] hover:text-[var(--marca-primario)]"
               >
                 Ya tengo cuenta
               </Link>
@@ -132,8 +132,10 @@ function ComoFunciona() {
 
       <ol className="grid gap-5 sm:grid-cols-3">
         {PASOS.map((p, i) => (
-          <Reveal key={p.numero} as="li" delay={i * 120} className="flex flex-col gap-3 rounded-2xl border border-border bg-background p-5 hover-elevar">
-            <span className="font-mono text-sm text-muted">{p.numero}</span>
+          <Reveal key={p.numero} as="li" delay={i * 120} className="group flex flex-col gap-3 rounded-2xl border border-border bg-background/70 p-5 backdrop-blur hover-elevar hover:border-[var(--marca-primario)]">
+            <span className="inline-flex size-10 items-center justify-center rounded-full bg-[var(--marca-primario)]/10 font-mono text-sm font-semibold text-[var(--marca-primario)]">
+              {p.numero}
+            </span>
             <h3 className="text-xl font-bold">{p.titulo}</h3>
             <p className="text-sm text-muted">{p.descripcion}</p>
           </Reveal>
@@ -172,9 +174,9 @@ function ParaCadaClima() {
             key={clave}
             as="li"
             delay={i * 80}
-            className="flex items-start gap-3 rounded-2xl border border-border bg-background p-4 hover-elevar"
+            className="flex items-start gap-3 rounded-2xl border border-border bg-background/70 p-4 backdrop-blur hover-elevar hover:border-[var(--marca-terciario)]"
           >
-            <span aria-hidden="true" className="text-3xl">
+            <span aria-hidden="true" className="text-3xl drop-shadow-sm">
               {c.icono}
             </span>
             <div>
@@ -234,9 +236,11 @@ function Beneficios() {
             key={b.titulo}
             as="li"
             delay={i * 100}
-            className="flex flex-col gap-2 rounded-2xl border border-border bg-background p-6 hover-elevar"
+            className="group flex flex-col gap-2 rounded-2xl border border-border bg-background/70 p-6 backdrop-blur hover-elevar hover:border-[var(--marca-secundario)]"
           >
-            <h3 className="text-xl font-bold">{b.titulo}</h3>
+            <h3 className="text-xl font-bold group-hover:text-[var(--marca-primario)]">
+              {b.titulo}
+            </h3>
             <p className="text-sm text-muted">{b.descripcion}</p>
           </Reveal>
         ))}
@@ -264,13 +268,13 @@ function CTAFinal() {
       <div className="flex flex-wrap items-center justify-center gap-3">
         <Link
           href="/registro"
-          className="rounded-full bg-foreground px-7 py-3.5 text-lg font-medium text-background shadow-sm transition hover:opacity-90 hover:shadow-md"
+          className="rounded-full bg-[var(--marca-primario)] px-7 py-3.5 text-lg font-medium text-white shadow-sm transition hover:brightness-110 hover:shadow-md"
         >
           Empezar gratis
         </Link>
         <Link
           href="/paletas"
-          className="rounded-full border border-border px-7 py-3.5 text-lg font-medium hover:bg-border/40"
+          className="rounded-full border border-border px-7 py-3.5 text-lg font-medium transition hover:border-[var(--marca-terciario)] hover:text-[var(--marca-terciario)]"
         >
           Explorar paletas
         </Link>

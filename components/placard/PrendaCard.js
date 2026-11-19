@@ -11,10 +11,10 @@ export default function PrendaCard({ prenda }) {
   // vistazo.
   const colorIcono = colorDeTexto(prenda.color.hex);
   return (
-    <li>
+    <li data-stagger>
       <Link
         href={`/placard/${prenda.id}`}
-        className="flex h-full flex-col overflow-hidden rounded-2xl border border-border transition hover:border-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-foreground"
+        className="flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-background/70 backdrop-blur transition hover:-translate-y-1 hover:border-[var(--marca-primario)] hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--marca-primario)]"
       >
         <div
           className="relative flex aspect-square items-center justify-center"
