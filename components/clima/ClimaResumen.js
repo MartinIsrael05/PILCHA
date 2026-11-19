@@ -10,7 +10,7 @@ export default function ClimaResumen({ clima, actual, desde, hasta }) {
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex flex-col gap-1">
           <p className="text-sm text-muted">
-            Entre las {desde}:00 y las {hasta}:00
+            {clima.paraManana ? "Mañana" : "Hoy"} entre las {desde}:00 y las {hasta}:00
           </p>
           <p className="flex items-center gap-2 text-2xl font-semibold">
             <span aria-hidden="true">{icono}</span>
